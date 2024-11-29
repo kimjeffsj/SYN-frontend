@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white min-h-screen text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* Input styles */
+  .input-field {
+    @apply w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors;
+  }
+
+  /* Button styles */
+  .btn-primary {
+    @apply flex justify-center items-center px-4 py-2 rounded-lg text-white bg-primary hover:bg-primary/90 transition-colors;
+  }
+}
