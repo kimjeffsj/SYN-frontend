@@ -27,7 +27,7 @@ export interface CreateScheduleDto {
   shift_type: ShiftType;
   description?: string;
   is_repeating?: boolean;
-  repeat_patter?: string;
+  repeat_pattern?: string;
 }
 
 export interface ScheduleState {
