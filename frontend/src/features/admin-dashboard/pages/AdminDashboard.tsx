@@ -1,7 +1,7 @@
 import { AppDispatch, RootState } from "@/app/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboardStats } from "../slice/adminDashboardSlice";
+import { fetchDashboardData } from "../slice/adminDashboardSlice";
 import { Bell, Menu } from "lucide-react";
 import { EmployeeOverview } from "../components/EmployeeOverview";
 import { RecentAnnouncements } from "../components/RecentAnnouncements";
@@ -17,7 +17,7 @@ export const AdminDashboard = () => {
     useSelector((state: RootState) => state.adminDashboard);
 
   useEffect(() => {
-    dispatch(fetchDashboardStats());
+    dispatch(fetchDashboardData());
   }, [dispatch]);
 
   const handleEmployeeClick = (employeeId: number) => {

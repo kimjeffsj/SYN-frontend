@@ -10,8 +10,8 @@ const initialState: EmployeeDashboardState = {
   employee: {
     id: 1,
     name: "Employee Name",
-    position: "매니저",
-    department: "양진 네일샵",
+    position: "Manager",
+    department: "Screener",
   },
   todaySchedule: {
     id: 1,
@@ -34,7 +34,7 @@ const initialState: EmployeeDashboardState = {
   announcements: [
     {
       id: 1,
-      title: "11월 근무 일정 안내",
+      title: "November Shift updated",
       date: "2024-11-15",
       isNew: true,
     },

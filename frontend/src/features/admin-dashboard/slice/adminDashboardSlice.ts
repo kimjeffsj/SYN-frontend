@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AdminDashboardState } from "../types/admin-dashboard.type";
-import { dashboardApi } from "../api/adminDashboardApi";
+
 import { RootState } from "@/app/store";
 import { AxiosError } from "axios";
+import { adminDashboardApi } from "../api/adminDashboardApi";
 
 const initialState: AdminDashboardState = {
   stats: {
@@ -25,6 +26,26 @@ const initialState: AdminDashboardState = {
   error: null,
 };
 
+export const fetchDashboardData = createAsyncThunk(
+  "adminDashboard/fetchData",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const token = (getState() as RootState).auth.accessToken;
+      if (!token) throw new Error("No access token");
+
+      const data = await adminDashboardApi.getDashboard(token);
+      return data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(
+          error.response?.data?.detail || "Failed to fetch dashboard data"
+        );
+      }
+      return rejectWithValue("An unexpected error occurred");
+    }
+  }
+);
+
 export const fetchDashboardStats = createAsyncThunk(
   "dashboard/fetchStats",
   async (_, { getState, rejectWithValue }) => {
@@ -32,7 +53,7 @@ export const fetchDashboardStats = createAsyncThunk(
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
-      const stats = await dashboardApi.getStats(token);
+      const stats = await adminDashboardApi.getStats(token);
       return stats;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -52,7 +73,7 @@ export const fetchRecentUpdates = createAsyncThunk(
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
-      const updates = await dashboardApi.getRecentUpdates(token);
+      const updates = await adminDashboardApi.getRecentUpdates(token);
       return updates;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -77,6 +98,21 @@ const dashboardSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchDashboardData.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchDashboardData.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.stats = action.payload.stats;
+        state.recentUpdates = action.payload.recentUpdates;
+        state.employees = action.payload.employees;
+        state.announcements = action.payload.announcements;
+      })
+      .addCase(fetchDashboardData.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
       .addCase(fetchDashboardStats.pending, (state) => {
         state.isLoading = true;
         state.error = null;
