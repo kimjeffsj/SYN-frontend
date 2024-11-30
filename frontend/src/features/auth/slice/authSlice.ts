@@ -2,11 +2,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AuthState, LoginCredentials } from "../types/auth.type";
 import { authApi } from "../api/authApi";
 import { AxiosError } from "axios";
+import { storage } from "@/shared/utils/storage";
 
 const initialState: AuthState = {
-  user: null,
-  accessToken: null,
-  isAuthenticated: false,
+  user: storage.getUser(),
+  accessToken: storage.getToken(),
+  isAuthenticated: !!storage.getToken(),
   isLoading: false,
   error: null,
 };
@@ -16,8 +17,10 @@ export const login = createAsyncThunk(
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const data = await authApi.login(credentials);
+      storage.setToken(data.access_token);
 
       const user = await authApi.getCurrentUser(data.access_token);
+      storage.setUser(data.access_token);
       return { token: data.access_token, user };
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -36,6 +39,8 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.isAuthenticated = false;
+      storage.clearToken();
+      storage.clearUser();
     },
     setCredentials: (state, action) => {
       const { user, token } = action.payload;
