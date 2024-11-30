@@ -23,13 +23,7 @@ import {
   subWeeks,
   subMonths,
 } from "date-fns";
-
-const ShiftTypeColors = {
-  morning: "bg-blue-100 text-blue-800",
-  afternoon: "bg-purple-100 text-purple-800",
-  evening: "bg-indigo-100 text-indigo-800",
-  full_day: "bg-green-100 text-green-800",
-};
+import { getShiftTypeStyle } from "../\butils/schedule.utils";
 
 type CalendarView = "week" | "month";
 
@@ -98,9 +92,10 @@ export const ScheduleCalendar = () => {
   const renderSchedule = (schedule: Schedule) => (
     <div
       key={schedule.id}
-      className={`${
-        ShiftTypeColors[schedule.shift_type]
-      } p-2 rounded-lg mb-1 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
+      className={`
+        ${getShiftTypeStyle(
+          schedule.shift_type
+        )} p-2 rounded-lg mb-1 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
     >
       <div className="flex items-center justify-between">
         <span className="font-medium text-xs capitalize">
