@@ -4,8 +4,9 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 import { SchedulePage } from "@/features/schedule/pages/SchedulePage";
-import { Dashboard } from "@/Dashboard";
-import AdminSchedulePage from "@/features/schedule/pages/AdminSchedulePage";
+import { AdminSchedulePage } from "@/features/schedule/pages/AdminSchedulePage";
+import { EmployeeDashboard } from "@/features/employee-dashboard/pages/EmployeeDashboard";
+import { AdminDashboard } from "@/features/admin-dashboard/pages/AdminDashboard";
 
 function App() {
   return (
@@ -15,22 +16,12 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-
           {/* Admin Routes */}
           <Route
             path="/admin/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />
@@ -44,6 +35,15 @@ function App() {
           />
 
           {/* Employee Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <EmployeeDashboard />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/schedule"
             element={
