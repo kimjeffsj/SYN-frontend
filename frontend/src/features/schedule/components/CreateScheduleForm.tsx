@@ -1,25 +1,33 @@
-import { AppDispatch, RootState } from "@/app/store";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { useDispatch } from "react-redux";
 import { CreateScheduleDto, ShiftType } from "../types/schedule.type";
-import { createSchedule } from "../slice/scheduleSlice";
+import { adminCreateSchedule } from "../slice/scheduleSlice";
 import { Modal } from "@/shared/components/Modal";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Users } from "lucide-react";
 
 interface CreateScheduleFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const shiftTypes: { value: ShiftType; label: string }[] = [
+  { value: "morning", label: "Morning (08:00-16:00)" },
+  { value: "afternoon", label: "Afternoon (12:00-20:00)" },
+  { value: "evening", label: "Evening (17:00-22:00)" },
+  { value: "full_day", label: "Full Day (08:00-18:00)" },
+];
+
 export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
   isOpen,
   onClose,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { isLoading } = useSelector((state: RootState) => state.schedule);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<Omit<CreateScheduleDto, "user_id">>({
+  const [formData, setFormData] = useState<CreateScheduleDto>({
+    user_id: 0,
     start_time: "",
     end_time: "",
     shift_type: "morning",
@@ -28,45 +36,93 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
     repeat_pattern: "",
   });
 
-  const shiftTypes: { value: ShiftType; label: string }[] = [
-    { value: "morning", label: "Morning (08:00-16:00)" },
-    { value: "afternoon", label: "Afternoon (12:00-20:00)" },
-    { value: "evening", label: "Evening (17:00-22:00)" },
-    { value: "full_day", label: "Full Day (08:00-18:00)" },
-  ];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!formData.user_id) {
+      setError("Please select an employee");
+      return;
+    }
 
     try {
-      await dispatch(
-        createSchedule({
-          ...formData,
-          user_id: user.id,
-        })
-      ).unwrap();
+      setIsSubmitting(true);
+      setError(null);
+      await dispatch(adminCreateSchedule(formData)).unwrap();
       onClose();
-    } catch (error) {
-      console.error("Failed to create schedule: ", error);
+    } catch (err) {
+      setError(err as string);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getShiftTimes = (
+    shiftType: ShiftType
+  ): { start: string; end: string } => {
+    const times = {
+      morning: { start: "08:00", end: "16:00" },
+      afternoon: { start: "12:00", end: "20:00" },
+      evening: { start: "17:00", end: "22:00" },
+      full_day: { start: "08:00", end: "18:00" },
+    };
+    return times[shiftType];
+  };
+
+  const handleShiftTypeChange = (shiftType: ShiftType) => {
+    const date = formData.start_time.split("T")[0];
+    if (date) {
+      const times = getShiftTimes(shiftType);
+      setFormData((prev) => ({
+        ...prev,
+        shift_type: shiftType,
+        start_time: `${date}T${times.start}:00Z`,
+        end_time: `${date}T${times.end}:00Z`,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        shift_type: shiftType,
+      }));
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Create New Schedule">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Employee Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            <Users className="w-4 h-4 inline-block mr-1" />
+            Employee
+          </label>
+          <input
+            type="number"
+            value={formData.user_id || ""}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                user_id: parseInt(e.target.value) || 0,
+              }))
+            }
+            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
+            placeholder="Employee ID"
+            required
+          />
+        </div>
+
+        {/* Shift Type Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Shift Type
           </label>
           <select
             value={formData.shift_type}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                shift_type: e.target.value as ShiftType,
-              }))
-            }
+            onChange={(e) => handleShiftTypeChange(e.target.value as ShiftType)}
             className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
           >
             {shiftTypes.map((type) => (
@@ -77,86 +133,68 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
           </select>
         </div>
 
+        {/* Date Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             <Calendar className="w-4 h-4 inline-block mr-1" />
             Date
           </label>
           <input
-            type="data"
+            type="date"
             value={formData.start_time.split("T")[0]}
-            onChange={(e) =>
+            onChange={(e) => {
+              const date = e.target.value;
+              const times = getShiftTimes(formData.shift_type);
               setFormData((prev) => ({
                 ...prev,
-                start_time: `${e.target.value}T09:00:00Z`,
-                end_time: `${e.target.value}T17:00:00Z`,
-              }))
-            }
+                start_time: `${date}T${times.start}:00Z`,
+                end_time: `${date}T${times.end}:00Z`,
+              }));
+            }}
+            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
             required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            <Clock className="w-4 h-4 inline-block mr-1" />
-            Time Range
-          </label>
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="time"
-              value={formData.start_time.split("T")[1]?.slice(0, 5)}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  start_time: `${prev.start_time.split("T")[0]}T${
-                    e.target.value
-                  }:00Z`,
-                }))
-              }
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
-              required
-            />
-            <input
-              type="time"
-              value={formData.end_time.split("T")[1]?.slice(0, 5)}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  end_time: `${prev.end_time.split("T")[0]}T${
-                    e.target.value
-                  }:00Z`,
-                }))
-              }
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
-              required
-            />
-          </div>
-        </div>
 
+        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description
+            Description (Optional)
           </label>
           <textarea
             value={formData.description}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, description: e.target.value }))
+              setFormData((prev) => ({
+                ...prev,
+                description: e.target.value,
+              }))
             }
             className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
             rows={3}
-            placeholder="Add any additional details..."
+            placeholder="Add any notes or instructions..."
           />
         </div>
 
-        <div className="flex items-center pt-4">
+        {/* Form Actions */}
+        <div className="flex justify-end space-x-4 pt-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
+            Cancel
+          </button>
           <button
             type="submit"
-            disabled={isLoading}
-            className="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
           >
-            {isLoading ? "Creating..." : "Create Schedule"}
+            {isSubmitting ? "Creating..." : "Create Schedule"}
           </button>
         </div>
       </form>
     </Modal>
   );
 };
+
+export default CreateScheduleForm;
