@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, LayoutList, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
@@ -13,7 +13,7 @@ import CreateScheduleForm from "../components/CreateScheduleForm";
 import { ScheduleStatus } from "../types/schedule.type";
 import ScheduleManagement from "../components/ScheduleManagement";
 
-const AdminSchedulePage = () => {
+export const AdminSchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { schedules, isLoading, error } = useSelector(
     (state: RootState) => state.schedule
@@ -129,5 +129,3 @@ const AdminSchedulePage = () => {
     </div>
   );
 };
-
-export default AdminSchedulePage;
