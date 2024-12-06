@@ -16,6 +16,24 @@ export const authApi = {
     return response.data;
   },
 
+  logout: async (token: string) => {
+    try {
+      await axios.post(
+        `${API_URL}/auth/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return true;
+    } catch (error) {
+      console.error("Logout failed:", error);
+      return false;
+    }
+  },
+
   getCurrentUser: async (token: string) => {
     const response = await axios.get(`${API_URL}/auth/me`, {
       headers: {

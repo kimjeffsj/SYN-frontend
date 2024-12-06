@@ -3,6 +3,7 @@ import { AuthState, LoginCredentials } from "../types/auth.type";
 import { authApi } from "../api/authApi";
 import { AxiosError } from "axios";
 import { storage } from "@/shared/utils/storage";
+import { RootState } from "@/app/store";
 
 const initialState: AuthState = {
   user: storage.getUser(),
@@ -27,6 +28,27 @@ export const login = createAsyncThunk(
         return rejectWithValue(error.response?.data?.detail || "Login failed");
       }
       return rejectWithValue("Unexpected error, try again");
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { getState, dispatch }) => {
+    try {
+      const token = (getState() as RootState).auth.accessToken;
+      if (token) {
+        await authApi.logout(token);
+      }
+
+      dispatch(logout());
+      // Redirect to home
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      dispatch(logout());
+      window.location.href = "/";
     }
   }
 );
