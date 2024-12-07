@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
+import { storage } from "../utils/storage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,11 +17,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   );
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
+    const token = storage.getToken();
+    const storedUser = storage.getUser();
+
+    if (token && storedUser) {
+      return <>{children}</>;
+    }
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
-  if (requireAdmin && user?.role !== "admin") {
+  if (requireAdmin && user.role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
 

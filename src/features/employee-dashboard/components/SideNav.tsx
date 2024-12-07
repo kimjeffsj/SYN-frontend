@@ -9,6 +9,9 @@ import {
   Users,
   LogOut,
 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { logoutUser } from "@/features/auth/slice/authSlice";
 
 interface SideNavProps {
   isOpen: boolean;
@@ -17,6 +20,11 @@ interface SideNavProps {
 
 export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
 
   const navigationItems = [
     { icon: User, label: "내 정보", path: "/profile" },
@@ -62,7 +70,7 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
           <hr className="my-4" />
 
           <button
-            onClick={() => navigate("/logout")}
+            onClick={() => handleLogout()}
             className="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg"
           >
             <LogOut className="w-5 h-5 mr-3" />
