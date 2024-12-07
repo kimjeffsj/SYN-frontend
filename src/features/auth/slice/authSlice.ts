@@ -21,7 +21,7 @@ export const login = createAsyncThunk(
       storage.setToken(data.access_token);
 
       const user = await authApi.getCurrentUser(data.access_token);
-      storage.setUser(data.access_token);
+      storage.setUser(data);
       return { token: data.access_token, user };
     } catch (error) {
       if (error instanceof AxiosError) {

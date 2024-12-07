@@ -5,10 +5,10 @@ export interface DashboardStats {
     onLeave: number;
     pendingApproval: number;
   };
-  requests: {
-    timeOff: number;
-    shiftTrade: number;
-    total: number;
+  schedules: {
+    today: number;
+    pending: number;
+    conflicts: number;
   };
 }
 
@@ -49,7 +49,13 @@ export interface AdminDashboardState {
 }
 
 export interface DashboardStatsProps {
-  stats: DashboardStats;
+  stats: {
+    totalEmployees: number;
+    activeEmployees: number;
+    todayShifts: number;
+    pendingRequests: number;
+    conflicts: number;
+  };
 }
 
 export interface EmployeeOverviewProps {

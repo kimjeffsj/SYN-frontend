@@ -10,6 +10,9 @@ import {
   LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { logoutUser } from "@/features/auth/slice/authSlice";
 
 interface SideNavProps {
   isOpen: boolean;
@@ -17,6 +20,12 @@ interface SideNavProps {
 }
 
 export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
+
   const navigate = useNavigate();
 
   const navigationItems = [
@@ -104,10 +113,7 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
             </button>
 
             <button
-              onClick={() => {
-                // Handle logout logic here
-                navigate("/logout");
-              }}
+              onClick={() => handleLogout()}
               className="w-full flex items-center p-3 rounded-lg text-red-600 
                 hover:bg-red-50 transition-colors"
             >
