@@ -8,10 +8,6 @@ interface DashboardStatsProps {
     todayShifts: number;
     pendingRequests: number;
     conflicts: number;
-    trend?: {
-      value: number;
-      isPositive: boolean;
-    };
   };
 }
 
@@ -23,13 +19,6 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
         value={`${stats.activeEmployees}/${stats.totalEmployees}`}
         icon={Users}
         iconClassName="bg-blue-50 text-blue-500"
-        trend={
-          stats.trend && {
-            value: stats.trend.value,
-            label: "vs yesterday",
-            isPositive: stats.trend.isPositive,
-          }
-        }
       />
 
       <StatsCard

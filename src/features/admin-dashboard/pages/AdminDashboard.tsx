@@ -1,20 +1,37 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { DashboardStats } from "../components/DashboardStats";
 import { MainLayout } from "@/shared/components/Layout/MainLayout";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/store";
+import { fetchDashboardStats } from "../slice/adminDashboardSlice";
 
 export function AdminDashboard() {
-  // TODO: Redux for actual data
-  const [stats, setStats] = useState({
-    totalEmployees: 25,
-    activeEmployees: 18,
-    todayShifts: 15,
-    pendingRequests: 3,
-    conflicts: 1,
-    trend: {
-      value: 2.5,
-      isPositive: true,
-    },
-  });
+  const dispatch = useDispatch<AppDispatch>();
+  const { stats, isLoading, error } = useSelector(
+    (state: RootState) => state.adminDashboard
+  );
+
+  useEffect(() => {
+    dispatch(fetchDashboardStats());
+  }, [dispatch]);
+
+  if (isLoading || !stats) {
+    return (
+      <MainLayout userRole="admin">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout userRole="admin">
+        <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout userRole="admin">
@@ -28,11 +45,15 @@ export function AdminDashboard() {
           </p>
         </div>
 
-        <DashboardStats stats={stats} />
-
-        {/* TODO: sections will work on */}
-        {/* <EmployeeOverview /> */}
-        {/* <RecentActivities /> */}
+        <DashboardStats
+          stats={{
+            totalEmployees: stats.employees.total,
+            activeEmployees: stats.employees.active,
+            todayShifts: stats.schedules.today,
+            pendingRequests: stats.employees.pendingApproval,
+            conflicts: stats.schedules.conflicts,
+          }}
+        />
       </div>
     </MainLayout>
   );

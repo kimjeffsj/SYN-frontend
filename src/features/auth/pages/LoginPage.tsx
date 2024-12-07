@@ -2,7 +2,7 @@ import { RootState } from "@/app/store";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { LoginForm } from "../componenets/LoginForm";
+import { LoginForm } from "../components/LoginForm";
 
 export const LoginPage = () => {
   const { isAuthenticated, user } = useSelector(
