@@ -6,9 +6,13 @@ export interface Employee {
 }
 
 export type ShiftType = "morning" | "afternoon" | "evening" | "full_day";
-export type ScheduleStatus = "pending" | "confirmed" | "cancelled";
+export type ScheduleStatus =
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "completed";
 
-export interface ScheduleItem {
+export interface Schedule {
   id: number;
   date: string;
   shift_type: ShiftType;
@@ -24,11 +28,41 @@ export interface Announcement {
   isNew: boolean;
 }
 
+export interface DashboardStats {
+  totalHours: number;
+  completedShifts: number;
+  upcomingShifts: number;
+  leaveBalance: number;
+}
+
 export interface EmployeeDashboardState {
   employee: Employee | null;
-  todaySchedule: ScheduleItem | null;
-  weeklySchedule: ScheduleItem[];
+  todaySchedule: Schedule | null;
+  weeklySchedule: Schedule[];
   announcements: Announcement[];
+  stats: DashboardStats | null;
   isLoading: boolean;
   error: string | null;
+}
+
+export interface DashboardResponse {
+  employee: Employee;
+  stats: DashboardStats;
+  todaySchedule: Schedule | null;
+  weeklySchedule: Schedule[];
+  announcements: Announcement[];
+}
+
+export interface EmployeeOverviewResponse {
+  id: number;
+  name: string;
+  position: string;
+  department: string;
+  status: string;
+  currentShift: string | null;
+}
+
+export interface EmployeeResponse {
+  user: Employee;
+  currentSchedule: Schedule | null;
 }
