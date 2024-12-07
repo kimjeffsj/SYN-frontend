@@ -1,18 +1,10 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 import { format } from "date-fns";
-
-interface ScheduleItem {
-  id: number;
-  date: string;
-  shift_type: "morning" | "afternoon" | "evening" | "full_day";
-  start_time: string;
-  end_time: string;
-  status: "pending" | "confirmed" | "cancelled";
-}
+import { Schedule } from "../type/employee-dashboard.type";
 
 interface ScheduleOverviewProps {
-  weeklySchedule: ScheduleItem[];
+  weeklySchedule: Schedule[];
   onViewDetail: () => void;
 }
 

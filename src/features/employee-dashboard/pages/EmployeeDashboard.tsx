@@ -1,75 +1,90 @@
-import React, { useState } from "react";
+import { AppDispatch, RootState } from "@/app/store";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { Bell, Menu } from "lucide-react";
-
-import { AnnouncementList } from "../components/AnnouncementList";
-
-import { RootState } from "@/app/store";
-import { markAnnouncementAsRead } from "../slice/employeeDashboardSlice";
+import {
+  fetchDashboardData,
+  markAnnouncementAsRead,
+} from "../slice/employeeDashboardSlice";
 import { ScheduleOverview } from "../components/scheduleOverview";
-import { SideNav } from "../components/SideNav";
+import { AnnouncementList } from "../components/AnnouncementList";
+import StatsCard from "@/shared/components/StatsCard";
+import { Briefcase, Calendar, CheckCircle2, Clock } from "lucide-react";
 
-export const EmployeeDashboard: React.FC = () => {
+export const EmployeeDashboard = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [isNavOpen, setIsNavOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { employee, stats, weeklySchedule, announcements, isLoading, error } =
+    useSelector((state: RootState) => state.employeeDashboard);
 
-  const { employee, weeklySchedule, announcements } = useSelector(
-    (state: RootState) => state.employeeDashboard
-  );
+  useEffect(() => {
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
 
   const handleAnnouncementClick = (id: number) => {
     dispatch(markAnnouncementAsRead(id));
-    // TODO: Navigate to announcement detail
   };
 
-  if (!employee) {
-    return null;
+  if (isLoading) {
+    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+    </div>;
   }
 
+  if (error) {
+    return <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>;
+  }
+
+  if (!stats || !employee) return null;
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="p-6 border-b">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-semibold text-primary">
-              {employee.name}
-            </h1>
-            <div className="flex gap-4 mt-2 text-sm text-gray-500">
-              <span>{employee.department}</span>
-              <span>{employee.position}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="relative">
-              <Bell className="w-6 h-6 text-secondary" />
-              {announcements.some((a) => a.isNew) && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-              )}
-            </button>
-            <button onClick={() => setIsNavOpen(true)}>
-              <Menu className="w-6 h-6 text-secondary" />
-            </button>
-          </div>
-        </div>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-500 mt-1">Welcome back, {employee.name}</p>
       </div>
 
-      <div className="p-6">
-        <ScheduleOverview
-          weeklySchedule={weeklySchedule}
-          onViewDetail={() => navigate("/schedule")}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Total Hours"
+          value={`${stats.totalHours}h`}
+          icon={Clock}
+          iconClassName="bg-blue-50 text-blue-600"
         />
-
-        <AnnouncementList
-          announcements={announcements}
-          onViewDetail={() => navigate("/announcements")}
-          onAnnouncementClick={handleAnnouncementClick}
+        <StatsCard
+          title="Completed Shifts"
+          value={stats.completedShifts}
+          icon={CheckCircle2}
+          iconClassName="bg-green-50 text-green-600"
+        />
+        <StatsCard
+          title="Upcoming Shifts"
+          value={stats.upcomingShifts}
+          icon={Calendar}
+          iconClassName="bg-purple-50 text-purple-600"
+        />
+        <StatsCard
+          title="Leave Balance"
+          value={`${stats.leaveBalance} days`}
+          icon={Briefcase}
+          iconClassName="bg-orange-50 text-orange-600"
         />
       </div>
 
-      <SideNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />
+      {/* Schedule Overview */}
+      <ScheduleOverview
+        weeklySchedule={weeklySchedule}
+        onViewDetail={() => navigate("/schedule")}
+      />
+
+      {/* Announcements */}
+      <AnnouncementList
+        announcements={announcements}
+        onViewDetail={() => navigate("/announcements")}
+        onAnnouncementClick={handleAnnouncementClick}
+      />
     </div>
   );
 };
