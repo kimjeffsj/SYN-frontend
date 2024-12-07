@@ -1,4 +1,10 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 import { SchedulePage } from "@/features/schedule/pages/SchedulePage";
@@ -8,6 +14,7 @@ import { AdminDashboard } from "@/features/admin-dashboard/pages/AdminDashboard"
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
 import { AuthProvider } from "@/features/auth/components/\bAuthProvider";
+import { MainLayout } from "@/shared/components/Layout/MainLayout";
 
 function App() {
   const { user, isAuthenticated } = useSelector(
@@ -18,43 +25,36 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {/* Public Route */}
           <Route path="/" element={<LoginPage />} />
 
-          {/* Admin Routes */}
+          {/* Protected Routes with Shared Layout */}
           <Route
-            path="/admin/dashboard"
             element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminDashboard />
+              <ProtectedRoute>
+                <MainLayout userRole={user?.role || "employee"}>
+                  <Outlet /> {/* 여기에 Outlet 추가 */}
+                </MainLayout>
               </ProtectedRoute>
             }
-          />
-          <Route
-            path="/admin/schedules"
-            element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminSchedulePage />
-              </ProtectedRoute>
-            }
-          />
+          >
+            {/* Admin Routes */}
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Routes>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="schedules" element={<AdminSchedulePage />} />
+                  </Routes>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Employee Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <EmployeeDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/schedule"
-            element={
-              <ProtectedRoute>
-                <SchedulePage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Employee Routes */}
+            <Route path="dashboard" element={<EmployeeDashboard />} />
+            <Route path="schedule" element={<SchedulePage />} />
+          </Route>
 
           {/* Fallback route */}
           <Route

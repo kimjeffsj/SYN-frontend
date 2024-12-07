@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { setCredentials } from "../slice/authSlice";
 import { storage } from "@/shared/utils/storage";
+import { User } from "../types/auth.type";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
@@ -12,14 +13,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const token = storage.getToken();
-    const user = storage.getUser();
+    const storedUser = storage.getUser() as User | null;
 
-    if (token && user) {
-      dispatch(setCredentials({ user, token }));
+    if (token && storedUser) {
+      dispatch(setCredentials({ user: storedUser, token }));
 
       if (location.pathname === "/") {
         const targetPath =
-          user.role === "admin" ? "/admin/dashboard" : "/dashboard";
+          storedUser.role === "admin" ? "/admin/dashboard" : "/dashboard";
         navigate(targetPath, { replace: true });
       }
     }

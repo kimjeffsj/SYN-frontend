@@ -1,19 +1,19 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Calendar, Clock, User, Check, X, Search } from "lucide-react";
 import { Schedule, ScheduleStatus } from "../types/schedule.type";
 import { getShiftTypeStyle, getStatusStyle } from "../\butils/schedule.utils";
 
-interface ScheduleTableProps {
+interface ScheduleManagementProps {
   schedules: Schedule[];
   onStatusChange: (id: number, status: ScheduleStatus) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: number) => Promise<void>;
 }
 
-const ScheduleManagement = ({
+const ScheduleManagement: React.FC<ScheduleManagementProps> = ({
   schedules,
   onStatusChange,
   onDelete,
-}: ScheduleTableProps) => {
+}) => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
