@@ -8,7 +8,7 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children, userRole }: MainLayoutProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

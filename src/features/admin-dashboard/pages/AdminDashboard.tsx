@@ -34,27 +34,23 @@ export function AdminDashboard() {
   }
 
   return (
-    <MainLayout userRole="admin">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Dashboard Overview
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Welcome back! Here's what's happening today.
-          </p>
-        </div>
-
-        <DashboardStats
-          stats={{
-            totalEmployees: stats.employees.total,
-            activeEmployees: stats.employees.active,
-            todayShifts: stats.schedules.today,
-            pendingRequests: stats.employees.pendingApproval,
-            conflicts: stats.schedules.conflicts,
-          }}
-        />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
+        <p className="text-gray-500 mt-1">
+          Welcome back! Here's what's happening today.
+        </p>
       </div>
-    </MainLayout>
+
+      <DashboardStats
+        stats={{
+          totalEmployees: stats.employees.total,
+          activeEmployees: stats.employees.active,
+          todayShifts: stats.schedules.today,
+          pendingRequests: stats.employees.pendingApproval,
+          conflicts: stats.schedules.conflicts,
+        }}
+      />
+    </div>
   );
 }
