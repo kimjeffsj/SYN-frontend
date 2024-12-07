@@ -6,7 +6,7 @@ interface StatsCardProps {
   icon: LucideIcon;
   trend?: {
     value: number;
-    label: string;
+    label?: string;
     isPositive?: boolean;
   };
   iconClassName?: string;

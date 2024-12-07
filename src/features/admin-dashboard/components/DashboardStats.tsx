@@ -1,54 +1,46 @@
-import React from "react";
-import { Clock, MessageSquare, Plane, Users } from "lucide-react";
-import { DashboardStatsProps } from "../types/admin-dashboard.type";
+import StatsCard from "@/shared/components/StatsCard";
+import { AlertCircle, BarChart3, Calendar, Users } from "lucide-react";
 
-export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
-  const statCards = [
-    {
-      title: "Total Employees",
-      value: stats.employees.total,
-      icon: Users,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-    },
-    {
-      title: "Active Today",
-      value: stats.employees.active,
-      icon: Clock,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-    },
-    {
-      title: "On Leave",
-      value: stats.employees.onLeave,
-      icon: Plane,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-    },
-    {
-      title: "Total Requests",
-      value: stats.requests.total,
-      icon: MessageSquare,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100",
-    },
-  ];
+interface DashboardStatsProps {
+  stats: {
+    totalEmployees: number;
+    activeEmployees: number;
+    todayShifts: number;
+    pendingRequests: number;
+    conflicts: number;
+  };
+}
 
+export function DashboardStats({ stats }: DashboardStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {statCards.map((card, index) => (
-        <div key={index} className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">{card.title}</p>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-            </div>
-            <div className={`${card.bgColor} p-3 rounded-lg`}>
-              <card.icon className={`w-6 h-6 ${card.color}`} />
-            </div>
-          </div>
-        </div>
-      ))}
+      <StatsCard
+        title="Active Employees"
+        value={`${stats.activeEmployees}/${stats.totalEmployees}`}
+        icon={Users}
+        iconClassName="bg-blue-50 text-blue-500"
+      />
+
+      <StatsCard
+        title="Today's Shifts"
+        value={stats.todayShifts}
+        icon={Calendar}
+        iconClassName="bg-purple-50 text-purple-500"
+      />
+
+      <StatsCard
+        title="Pending Requests"
+        value={stats.pendingRequests}
+        icon={BarChart3}
+        iconClassName="bg-yellow-50 text-yellow-500"
+      />
+
+      <StatsCard
+        title="Schedule Conflicts"
+        value={stats.conflicts}
+        icon={AlertCircle}
+        iconClassName="bg-red-50 text-red-500"
+      />
     </div>
   );
-};
+}

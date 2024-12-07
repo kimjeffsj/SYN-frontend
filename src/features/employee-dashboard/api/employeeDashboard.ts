@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const employeeDashboardApi = {
   getEmployeeInfo: async (token: string) => {
-    const response = await axios.get<Employee>(`${API_URL}/employee/profile`, {
+    const response = await axios.get<Employee>(`${API_URL}/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -19,7 +19,7 @@ export const employeeDashboardApi = {
 
   getTodaySchedule: async (token: string) => {
     const response = await axios.get<ScheduleItem>(
-      `${API_URL}/employee/schedule/today`,
+      `${API_URL}/schedule/today`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -31,7 +31,7 @@ export const employeeDashboardApi = {
 
   getWeeklySchedule: async (token: string) => {
     const response = await axios.get<ScheduleItem[]>(
-      `${API_URL}/employee/schedule/weekly`,
+      `${API_URL}/schedule/weekly`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -43,7 +43,7 @@ export const employeeDashboardApi = {
 
   getAnnouncements: async (token: string) => {
     const response = await axios.get<Announcement[]>(
-      `${API_URL}/employee/announcements`,
+      `${API_URL}/announcements`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ export const employeeDashboardApi = {
 
   markAnnouncementAsRead: async (token: string, announcementId: number) => {
     await axios.patch(
-      `${API_URL}/employee/announcements/${announcementId}/read`,
+      `${API_URL}/announcements/${announcementId}/read`,
       {},
       {
         headers: {
