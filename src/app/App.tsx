@@ -9,12 +9,13 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 import { SchedulePage } from "@/features/schedule/pages/SchedulePage";
 import { AdminSchedulePage } from "@/features/schedule/pages/AdminSchedulePage";
-import { EmployeeDashboard } from "@/features/employee-dashboard/pages/EmployeeDashboard";
+
 import { AdminDashboard } from "@/features/admin-dashboard/pages/AdminDashboard";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
 import { AuthProvider } from "@/features/auth/components/\bAuthProvider";
 import { MainLayout } from "@/shared/components/Layout/MainLayout";
+import { EmployeeDashboard } from "@/features/employee-dashboard/pages/EmployeeDashboard";
 
 function App() {
   const { user, isAuthenticated } = useSelector(

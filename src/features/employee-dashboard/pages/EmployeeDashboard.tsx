@@ -26,16 +26,20 @@ export const EmployeeDashboard = () => {
   };
 
   if (isLoading) {
-    <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-    </div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+      </div>
+    );
   }
 
   if (error) {
     return <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>;
   }
 
-  if (!stats || !employee) return null;
+  if (!employee || !stats) {
+    return <div>No data available</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -80,11 +84,13 @@ export const EmployeeDashboard = () => {
       />
 
       {/* Announcements */}
-      <AnnouncementList
-        announcements={announcements}
-        onViewDetail={() => navigate("/announcements")}
-        onAnnouncementClick={handleAnnouncementClick}
-      />
+      {announcements && announcements.length > 0 && (
+        <AnnouncementList
+          announcements={announcements}
+          onViewDetail={() => navigate("/announcements")}
+          onAnnouncementClick={handleAnnouncementClick}
+        />
+      )}
     </div>
   );
 };

@@ -1,12 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 
-import {
-  DashboardResponse,
-  EmployeeDashboardState,
-} from "../type/employee-dashboard.type";
+import { EmployeeDashboardState } from "../type/employee-dashboard.type";
 import { RootState } from "@/app/store";
-import { employeeDashboardApi } from "../api/employeeDashboard";
+import { employeeDashboardApi } from "../api/employeeDashboardApi";
 
 const initialState: EmployeeDashboardState = {
   employee: null,
@@ -18,15 +15,19 @@ const initialState: EmployeeDashboardState = {
   error: null,
 };
 
+let isDataFetched = false;
 // Get Dashboard Data
 export const fetchDashboardData = createAsyncThunk(
   "employeeDashboard/fetchDashboardData",
   async (_, { getState, rejectWithValue }) => {
     try {
+      if (isDataFetched) return;
+
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
       const data = await employeeDashboardApi.getDashboardStats(token);
+      isDataFetched = true;
       return data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -124,13 +125,19 @@ const employeeDashboardSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
-        const data = action.payload as DashboardResponse;
         state.isLoading = false;
-        state.employee = data.employee;
-        state.stats = data.stats;
-        state.todaySchedule = data.todaySchedule;
-        state.weeklySchedule = data.weeklySchedule;
-        state.announcements = data.announcements;
+        if (action.payload) {
+          state.employee = action.payload.employee;
+          state.stats = {
+            totalHours: 0,
+            completedShifts: 0,
+            upcomingShifts: 0,
+            leaveBalance: 0,
+          };
+          state.todaySchedule = action.payload.today_schedule;
+          state.weeklySchedule = action.payload.weekly_schedule;
+          state.announcements = action.payload.announcement || [];
+        }
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.isLoading = false;
