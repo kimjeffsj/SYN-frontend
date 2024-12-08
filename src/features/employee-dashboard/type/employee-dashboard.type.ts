@@ -48,9 +48,9 @@ export interface EmployeeDashboardState {
 export interface DashboardResponse {
   employee: Employee;
   stats: DashboardStats;
-  todaySchedule: Schedule | null;
-  weeklySchedule: Schedule[];
-  announcements: Announcement[];
+  today_schedule: Schedule | null;
+  weekly_schedule: Schedule[];
+  announcement: Announcement[];
 }
 
 export interface EmployeeOverviewResponse {

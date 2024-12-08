@@ -12,11 +12,12 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const employeeDashboardApi = {
   getDashboardStats: async (token: string) => {
     const response = await axios.get<DashboardResponse>(
-      `${API_URL}/dashboard`,
+      `${API_URL}/dashboard/`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+
     return response.data;
   },
 
