@@ -11,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const adminDashboardApi = {
   getDashboard: async (token: string): Promise<DashboardStats> => {
     const response = await axios.get<DashboardStats>(
-      `${API_URL}/admin/dashboard`,
+      `${API_URL}/admin/dashboard/`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
