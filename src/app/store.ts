@@ -2,6 +2,8 @@ import authReducer from "@/features/auth/slice/authSlice";
 import scheduleReducer from "@/features/schedule/slice/scheduleSlice";
 import adminDashboardReducer from "@/features/admin-dashboard/slice/adminDashboardSlice";
 import employeeDashboardReducer from "@/features/employee-dashboard/slice/employeeDashboardSlice";
+import shiftTradeReducer from "@/features/shift-trade/slice/shiftTradeSlice";
+
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({
@@ -10,6 +12,7 @@ export const store = configureStore({
     schedule: scheduleReducer,
     adminDashboard: adminDashboardReducer,
     employeeDashboard: employeeDashboardReducer,
+    shiftTrade: shiftTradeReducer,
   },
 });
 
