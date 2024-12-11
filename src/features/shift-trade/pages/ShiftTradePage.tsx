@@ -1,10 +1,16 @@
 import { AppDispatch, RootState } from "@/app/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTradeRequests } from "../slice/shiftTradeSlice";
+import {
+  createTradeResponse,
+  fetchTradeRequests,
+  updateResponseStatus,
+} from "../slice/shiftTradeSlice";
 import { TradeRequestCard } from "../components/TradeRequestCard";
 import { TradeRequestModal } from "../components/TradeRequestModal";
 import { Plus, Search } from "lucide-react";
+import { ShiftTradeRequest } from "../types/shift-trade.type";
+import { TradeDetail } from "../components/TradeDetail";
 
 export default function ShiftTradePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,6 +31,10 @@ export default function ShiftTradePage() {
     null
   );
 
+  // Request Detail States
+  const [selectedRequest, setSelectedRequest] =
+    useState<ShiftTradeRequest | null>(null);
+
   // Initial data load
   useEffect(() => {
     const params: Record<string, string> = {};
@@ -39,12 +49,47 @@ export default function ShiftTradePage() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleAction = async (
-    requestId: number,
-    action: "accept" | "reject"
+  const handleRespond = async (responseData: {
+    offeredShiftId: number;
+    content: string;
+  }) => {
+    if (!selectedRequest) return;
+
+    try {
+      await dispatch(
+        createTradeResponse({
+          tradeId: selectedRequest.id,
+          data: {
+            trade_request_id: selectedRequest.id,
+            offered_shift_id: responseData.offeredShiftId,
+            content: responseData.content,
+          },
+        })
+      ).unwrap();
+    } catch (error) {
+      console.error("Failed to respond to trade request: ", error);
+    }
+  };
+
+  const handleUpdateResponseStatus = async (
+    responseId: number,
+    status: "ACCEPTED" | "REJECTED"
   ) => {
-    // TODO: accept/reject actions
-    console.log("Action:", action, "Request ID:", requestId);
+    if (!selectedRequest) return;
+
+    try {
+      await dispatch(
+        updateResponseStatus({
+          tradeId: selectedRequest.id,
+          responseId,
+          status,
+        })
+      ).unwrap();
+
+      dispatch(fetchTradeRequests({}));
+    } catch (error) {
+      console.error("Failed to update response status: ", error);
+    }
   };
 
   return (
@@ -126,11 +171,7 @@ export default function ShiftTradePage() {
               <TradeRequestCard
                 key={request.id}
                 request={request}
-                onAction={handleAction}
-                onClick={(requestId) => {
-                  // TODO: Implement detail view navigation
-                  console.log("Clicked request:", requestId);
-                }}
+                onClick={() => setSelectedRequest(request)}
               />
             ))}
           </div>
@@ -146,6 +187,17 @@ export default function ShiftTradePage() {
             setSelectedScheduleId(null);
           }}
           scheduleId={selectedScheduleId}
+        />
+      )}
+
+      {/* Trade Detail Modal */}
+      {selectedRequest && (
+        <TradeDetail
+          isOpen={true}
+          onClose={() => setSelectedRequest(null)}
+          request={selectedRequest}
+          onRespond={handleRespond}
+          onUpdateStatus={handleUpdateResponseStatus}
         />
       )}
     </div>
