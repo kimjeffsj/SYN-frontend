@@ -1,4 +1,4 @@
-import { ScheduleStatus, ShiftType } from "../types/schedule.type";
+import { ShiftType } from "../types/schedule.type";
 
 export const getShiftTypeStyle = (type: ShiftType): string => {
   const styles = {
@@ -8,16 +8,6 @@ export const getShiftTypeStyle = (type: ShiftType): string => {
     full_day: "bg-green-100 text-green-800",
   };
   return styles[type];
-};
-
-export const getStatusStyle = (status: ScheduleStatus): string => {
-  const styles = {
-    pending: "bg-yellow-100 text-yellow-800",
-    confirmed: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
-    completed: "bg-blue-100 text-blue-800",
-  };
-  return styles[status];
 };
 
 export const formatTime = (dateString: string) => {

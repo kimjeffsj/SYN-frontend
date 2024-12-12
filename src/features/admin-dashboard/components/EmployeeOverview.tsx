@@ -1,20 +1,13 @@
 import React from "react";
 import { User, Clock, MoreVertical } from "lucide-react";
 import { EmployeeOverviewProps } from "../types/admin-dashboard.type";
+import { getStatusBgStyle } from "@/shared/utils/status.utils";
+import { StatusBadge } from "@/shared/components/StatusBadge";
 
 export const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   employees,
   onEmployeeClick,
 }) => {
-  const getStatusColor = (status: "active" | "onLeave" | "offline") => {
-    const colors = {
-      active: "bg-green-500",
-      onLeave: "bg-yellow-500",
-      offline: "bg-gray-400",
-    };
-    return colors[status];
-  };
-
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6 border-b">
@@ -37,15 +30,24 @@ export const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-gray-100 p-2 rounded-full">
-                  <User className="w-6 h-6 text-gray-600" />
+                <div
+                  className={`p-3 rounded-lg ${getStatusBgStyle(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    employee.status as any
+                  )}`}
+                >
+                  <User className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900">{employee.name}</h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <span>{employee.position}</span>
-                    <span>•</span>
-                    <span>{employee.department}</span>
+                    {employee.department && (
+                      <>
+                        <span>•</span>
+                        <span>{employee.department}</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -58,11 +60,10 @@ export const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                   </div>
                 )}
                 <div className="flex items-center space-x-2">
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full ${getStatusColor(
-                      employee.status
-                    )}`}
-                    title={`Status: ${employee.status}`}
+                  <StatusBadge
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    status={employee.status as any}
+                    size="sm"
                   />
                   <button
                     className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Calendar, Clock, User, Check, X, Search } from "lucide-react";
 import { Schedule, ScheduleStatus } from "../types/schedule.type";
-import { getShiftTypeStyle, getStatusStyle } from "../\butils/schedule.utils";
+import { getShiftTypeStyle } from "../\butils/schedule.utils";
+import { StatusBadge } from "@/shared/components/StatusBadge";
 
 interface ScheduleManagementProps {
   schedules: Schedule[];
@@ -113,13 +114,11 @@ const ScheduleManagement: React.FC<ScheduleManagementProps> = ({
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyle(
-                      schedule.status
-                    )}`}
-                  >
-                    {schedule.status}
-                  </span>
+                  <StatusBadge
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    status={schedule.status.toLowerCase() as any}
+                    size="sm"
+                  />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center space-x-2">

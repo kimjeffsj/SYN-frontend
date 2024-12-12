@@ -1,9 +1,7 @@
 import { Clock, CheckCircle, XCircle, User } from "lucide-react";
-import {
-  ShiftTradeRequest,
-  TradeStatus,
-  UrgencyLevel,
-} from "../types/shift-trade.type";
+import { ShiftTradeRequest, UrgencyLevel } from "../types/shift-trade.type";
+import { getStatusBgStyle } from "@/shared/utils/status.utils";
+import { StatusBadge } from "@/shared/components/StatusBadge";
 
 interface TradeRequestCardProps {
   request: ShiftTradeRequest;
@@ -18,15 +16,6 @@ export const TradeRequestCard = ({
   onClick,
   className = "",
 }: TradeRequestCardProps) => {
-  const getStatusStyle = (status: TradeStatus) => {
-    const styles = {
-      OPEN: "bg-yellow-100 text-yellow-800",
-      PENDING: "bg-blue-100 text-blue-800",
-      COMPLETED: "bg-green-100 text-green-800",
-    };
-    return styles[status];
-  };
-
   const getUrgencyStyle = (urgency: UrgencyLevel) => {
     const styles = {
       high: "bg-red-50 text-red-600 border-red-100",
@@ -66,13 +55,12 @@ export const TradeRequestCard = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            <span
-              className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${getStatusStyle(
-                request.status
-              )}`}
-            >
-              {request.status}
-            </span>
+            <StatusBadge
+              // TODO: create mapping function for type warning any
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              status={request.status.toLowerCase() as any}
+              size="sm"
+            />
             <span
               className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${getUrgencyStyle(
                 request.urgency
@@ -85,7 +73,7 @@ export const TradeRequestCard = ({
 
         {/* Schedule Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className={`rounded-lg p-4 ${getStatusBgStyle("active")}`}>
             <h3 className="text-sm font-medium text-gray-700 mb-2">
               Original Shift
             </h3>
@@ -105,7 +93,7 @@ export const TradeRequestCard = ({
           </div>
 
           {request.type === "TRADE" && request.preferred_shift && (
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className={`rounded-lg p-4 ${getStatusBgStyle("pending")}`}>
               <h3 className="text-sm font-medium text-gray-700 mb-2">
                 Preferred Shift
               </h3>

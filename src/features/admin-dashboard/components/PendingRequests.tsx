@@ -1,6 +1,8 @@
 import React from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { PendingRequestsProps } from "../types/admin-dashboard.type";
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import { getStatusBgStyle } from "@/shared/utils/status.utils";
 
 export const PendingRequests: React.FC<PendingRequestsProps> = ({
   requests,
@@ -22,20 +24,21 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
 
       <div className="p-4 space-y-4">
         {requests.map((request) => (
-          <div key={request.id} className="border rounded-lg p-4">
+          <div
+            key={request.id}
+            className={`border rounded-lg ${getStatusBgStyle(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              request.status.toLowerCase() as any
+            )} p-4`}
+          >
             <div className="flex justify-between">
               <div>
                 <div className="flex items-center space-x-2">
-                  <span
-                    className={`px-2.5 py-0.5 text-sm font-medium rounded-full
-                    ${
-                      request.type === "TIME_OFF"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-purple-100 text-purple-800"
-                    }`}
-                  >
-                    {request.type.replace("_", " ")}
-                  </span>
+                  <StatusBadge
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    status={request.type.toLowerCase().replace("_", "") as any}
+                    size="sm"
+                  />
                 </div>
                 <h3 className="font-medium mt-2">{request.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -48,13 +51,15 @@ export const PendingRequests: React.FC<PendingRequestsProps> = ({
               <div className="flex space-x-2">
                 <button
                   onClick={() => onApprove(request.id)}
-                  className="p-1.5 rounded-full hover:bg-green-50 text-green-600"
+                  className="p-1.5 rounded-full hover:bg-green-50 text-green-600 transition-colors"
+                  title="Approve"
                 >
                   <CheckCircle className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => onReject(request.id)}
-                  className="p-1.5 rounded-full hover:bg-red-50 text-red-600"
+                  className="p-1.5 rounded-full hover:bg-red-50 text-red-600 transition-colors"
+                  title="Reject"
                 >
                   <XCircle className="w-5 h-5" />
                 </button>
