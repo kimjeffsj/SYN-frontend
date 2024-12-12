@@ -1,6 +1,8 @@
 import React from "react";
 import { ChevronRight, Bell, AlertCircle } from "lucide-react";
 import { RecentAnnouncementsProps } from "../types/admin-dashboard.type";
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import { getStatusBgStyle } from "@/shared/utils/status.utils";
 
 export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
   announcements,
@@ -31,11 +33,10 @@ export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
           >
             <div className="flex items-start space-x-4">
               <div
-                className={`p-2 rounded-lg ${
-                  announcement.priority === "high"
-                    ? "bg-red-100"
-                    : "bg-blue-100"
-                }`}
+                className={`p-2 rounded-lg ${getStatusBgStyle(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  announcement.priority as any
+                )}`}
               >
                 {announcement.priority === "high" ? (
                   <AlertCircle className="w-5 h-5 text-red-600" />
@@ -49,17 +50,26 @@ export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
                     {announcement.title}
                   </h3>
                   {announcement.isNew && (
-                    <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-600 rounded-full">
-                      New
-                    </span>
+                    <StatusBadge
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      status={"pending" as any}
+                      size="sm"
+                    />
                   )}
                 </div>
                 <p className="mt-1 text-sm text-gray-500 line-clamp-2">
                   {announcement.content}
                 </p>
-                <p className="mt-1 text-xs text-gray-400">
-                  {new Date(announcement.date).toLocaleDateString()}
-                </p>
+                <div className="mt-1 flex items-center space-x-2">
+                  <span className="text-xs text-gray-400">
+                    {new Date(announcement.date).toLocaleDateString()}
+                  </span>
+                  <StatusBadge
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    status={announcement.priority as any}
+                    size="sm"
+                  />
+                </div>
               </div>
               <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
             </div>

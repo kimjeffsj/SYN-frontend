@@ -23,7 +23,8 @@ import {
   subWeeks,
   subMonths,
 } from "date-fns";
-import { getShiftTypeStyle } from "../\butils/schedule.utils";
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import { getStatusBgStyle } from "@/shared/utils/status.utils";
 
 type CalendarView = "week" | "month";
 
@@ -92,18 +93,17 @@ export const ScheduleCalendar = () => {
   const renderSchedule = (schedule: Schedule) => (
     <div
       key={schedule.id}
-      className={`
-        ${getShiftTypeStyle(
-          schedule.shift_type
-        )} p-2 rounded-lg mb-1 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
+      className={`${getStatusBgStyle(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        schedule.status.toLowerCase() as any
+      )} p-2 rounded-lg mb-1 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
     >
       <div className="flex items-center justify-between">
-        <span className="font-medium text-xs capitalize">
-          {schedule.shift_type.replace("_", " ")}
-        </span>
-        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/50">
-          {schedule.status}
-        </span>
+        <StatusBadge
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          status={schedule.status.toLowerCase() as any}
+          size="sm"
+        />
       </div>
 
       <div className="flex items-center text-xs mt-1">
