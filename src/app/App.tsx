@@ -17,6 +17,7 @@ import { AuthProvider } from "@/features/auth/components/\bAuthProvider";
 import { MainLayout } from "@/shared/components/Layout/MainLayout";
 import { EmployeeDashboard } from "@/features/employee-dashboard/pages/EmployeeDashboard";
 import ShiftTradePage from "@/features/shift-trade/pages/ShiftTradePage";
+import AnnouncementsPage from "@/features/announcement/pages/AnnouncementPage";
 
 function App() {
   const { user, isAuthenticated } = useSelector(
@@ -48,6 +49,10 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="schedules" element={<AdminSchedulePage />} />
                     <Route path="trades" element={<ShiftTradePage />} />
+                    <Route
+                      path="announcements"
+                      element={<AnnouncementsPage />}
+                    />
                   </Routes>
                 </ProtectedRoute>
               }
@@ -57,6 +62,7 @@ function App() {
             <Route path="dashboard" element={<EmployeeDashboard />} />
             <Route path="schedule" element={<SchedulePage />} />
             <Route path="trades" element={<ShiftTradePage />} />
+            <Route path="announcements" element={<AnnouncementsPage />} />
           </Route>
 
           {/* Fallback route */}
