@@ -1,55 +1,104 @@
 import { useState, useEffect } from "react";
-import { Bell, Check, X, Info, AlertTriangle } from "lucide-react";
-import { Notification, NotificationType } from "../type/notification";
+import { Bell, X, Calendar, Clock, AlertCircle } from "lucide-react";
+import { Notification } from "../type/notification";
 
-interface NotificationCenterProps {
-  notifications: Notification[];
-  onMarkAsRead: (notificationId: number) => void;
-  onNotificationClick?: (notification: Notification) => void;
-  className?: string;
-}
-
-export const NotificationCenter: React.FC<NotificationCenterProps> = ({
-  notifications,
-  onMarkAsRead,
-  onNotificationClick,
-  className = "",
-}) => {
+const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedNotification, setSelectedNotification] =
-    useState<Notification | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userString = localStorage.getItem("user");
 
-  const handleNotificationClick = useCallback(
-    (notification: Notification) => {
-      setSelectedNotification(notification);
-      if (!notification.isRead) {
-        onMarkAsRead(notification.id);
+    if (!token || !userString) return;
+
+    const user = JSON.parse(userString);
+
+    const wsUrl = `${import.meta.env.VITE_WS_URL}/ws/notifications/${
+      user.id
+    }?token=${token}`;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      setWsConnected(true);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "notification") {
+          setNotifications((prev) => [data.payload, ...prev]);
+          setUnreadCount((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error("Error processing message:", error);
       }
-      onNotificationClick?.(notification);
-    },
-    [onMarkAsRead, onNotificationClick]
-  );
+    };
 
-  // 알림 타입에 따른 아이콘 반환
-  const getNotificationIcon = (type: NotificationType) => {
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setWsConnected(false);
+    };
+
+    ws.onclose = () => {
+      setWsConnected(false);
+    };
+
+    // Cleanup on unmount
+    return () => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, []);
+
+  const handleMarkAsRead = async (notificationId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(
+        `${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification.id === notificationId
+            ? { ...notification, isRead: true }
+            : notification
+        )
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
     switch (type) {
       case "SCHEDULE_CHANGE":
-        return <Info className="w-5 h-5 text-blue-500" />;
+        return <Calendar className="w-5 h-5 text-blue-500" />;
       case "SHIFT_TRADE":
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case "LEAVE_REQUEST":
-        return <Bell className="w-5 h-5 text-purple-500" />;
+        return <Clock className="w-5 h-5 text-purple-500" />;
+      case "ANNOUNCEMENT":
+        return <AlertCircle className="w-5 h-5 text-red-500" />;
+      default:
+        return <Bell className="w-5 h-5 text-gray-500" />;
     }
   };
 
   return (
-    <div className={`relative ${className}`}>
-      {/* 알림 벨 버튼 */}
+    <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+        className="relative p-2 hover:bg-gray-100 rounded-full"
       >
         <Bell className="w-6 h-6 text-gray-600" />
         {unreadCount > 0 && (
@@ -59,39 +108,45 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         )}
       </button>
 
-      {/* 알림 패널 */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border z-50">
-          {/* 알림 헤더 */}
           <div className="p-4 border-b flex justify-between items-center">
-            <h3 className="font-semibold text-gray-900">알림</h3>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <h3 className="font-semibold">Notifications</h3>
+            <div className="flex items-center space-x-2">
+              {wsConnected && (
+                <span className="flex items-center text-xs text-green-600">
+                  <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+                  Connected
+                </span>
+              )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
-          {/* 알림 목록 */}
           <div className="max-h-[70vh] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                알림이 없습니다
+                No notifications
               </div>
             ) : (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`p-4 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer
-                    ${!notification.isRead ? "bg-blue-50" : ""}`}
+                  className={`p-4 border-b hover:bg-gray-50 ${
+                    !notification.isRead ? "bg-blue-50" : ""
+                  }`}
+                  onClick={() =>
+                    !notification.isRead && handleMarkAsRead(notification.id)
+                  }
                 >
                   <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
+                    {getNotificationIcon(notification.type)}
+                    <div>
                       <p className="font-medium text-sm">
                         {notification.title}
                       </p>
@@ -102,17 +157,6 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         {notification.time}
                       </p>
                     </div>
-                    {!notification.isRead && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMarkAsRead(notification.id);
-                        }}
-                        className="flex-shrink-0 p-1 hover:bg-gray-100 rounded"
-                      >
-                        <Check className="w-4 h-4 text-gray-400" />
-                      </button>
-                    )}
                   </div>
                 </div>
               ))
@@ -123,3 +167,5 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     </div>
   );
 };
+
+export default NotificationCenter;

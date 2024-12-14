@@ -1,10 +1,8 @@
 export type WebSocketMessageType = "notification" | "ping" | "error";
 
-export interface WebSocketMessage {
+export interface WebSocketMessage<T = unknown> {
   type: WebSocketMessageType;
-  // TODO: type any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload?: any;
+  payload?: T;
 }
 
 export type WebSocketEventHandler = (message: WebSocketMessage) => void;

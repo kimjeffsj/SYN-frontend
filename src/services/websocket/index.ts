@@ -31,6 +31,33 @@ class WebSocketService {
       return;
     }
 
+    try {
+      // WebSocket URL 구성 방식 수정
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${
+        import.meta.env.VITE_API_HOST
+      }/ws/notifications/${user.id}?token=${token}`;
+
+      this.ws = new WebSocket(wsUrl);
+
+      // 연결 상태 처리 개선
+      this.ws.onopen = () => {
+        console.log("WebSocket connected successfully");
+        this.reconnectAttempts = 0;
+        this.startPingInterval();
+      };
+
+      // 에러 처리 개선
+      this.ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        this.cleanup();
+        this.handleReconnect();
+      };
+    } catch (error) {
+      console.error("Error establishing WebSocket connection:", error);
+      this.handleReconnect();
+    }
+
     const wsUrl = `${import.meta.env.VITE_WS_URL}/ws/notifications/${
       user.id
     }?token=${token}`;
