@@ -109,6 +109,7 @@ const announcementSlice = createSlice({
       .addCase(fetchAnnouncements.fulfilled, (state, action) => {
         state.isLoading = false;
         state.announcements = action.payload;
+        // TODO: come back to fix this type error
       })
       .addCase(fetchAnnouncements.rejected, (state, action) => {
         state.isLoading = false;

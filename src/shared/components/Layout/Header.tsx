@@ -1,8 +1,8 @@
 import { Menu } from "lucide-react";
 import { Avatar } from "../Avatar";
-import { NotificationButton } from "../Notification/NotificationButton";
+import { NotificationButton } from "../../../features/notifications/components/NotificationButton";
 import { useState } from "react";
-import type { Notification } from "../Notification/type/notification";
+import type { Notification } from "../../../features/notifications/type/notification";
 
 interface HeaderProps {
   userRole: "admin" | "employee";
