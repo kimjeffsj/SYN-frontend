@@ -4,7 +4,7 @@ import {
   Notification,
   ScheduleChangeBrief,
   ShiftTradeBrief,
-} from "./type/notification";
+} from "../type/notification";
 import {
   ArrowRight,
   Bell,
