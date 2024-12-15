@@ -1,5 +1,3 @@
-// src/features/announcement/components/AnnouncementDetail.tsx
-
 import React from "react";
 import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";

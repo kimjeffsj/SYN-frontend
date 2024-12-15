@@ -1,9 +1,19 @@
+import { NotificationPayload } from "@/features/notifications/type/notification";
 import { storage } from "@/shared/utils/storage";
-import {
-  WebSocketEventHandler,
-  WebSocketMessage,
-  WebSocketOptions,
-} from "./types";
+
+export interface WebSocketMessage<T = unknown> {
+  type: "notification" | "ping" | "pong" | "error";
+  payload?: T;
+  timestamp?: string;
+}
+
+export type WebSocketEventHandler = (message: WebSocketMessage) => void;
+
+export interface WebSocketOptions {
+  maxReconnectAttempts?: number;
+  reconnectTimeout?: number;
+  pingInterval?: number;
+}
 
 const DEFAULT_OPTIONS: WebSocketOptions = {
   maxReconnectAttempts: 5,
@@ -17,12 +27,14 @@ class WebSocketService {
   private options: WebSocketOptions;
   private messageHandlers: Set<WebSocketEventHandler> = new Set();
   private pingInterval: NodeJS.Timeout | null = null;
+  private reconnectTimer: NodeJS.Timeout | null = null;
+  private pendingMessages: WebSocketMessage[] = [];
 
-  constructor(options: WebSocketOptions = {}) {
+  constructor(options: WebSocketOptions = DEFAULT_OPTIONS) {
     this.options = { ...DEFAULT_OPTIONS, ...options };
   }
 
-  connect() {
+  public connect(): void {
     const token = storage.getToken();
     const user = storage.getUser();
 
@@ -32,47 +44,28 @@ class WebSocketService {
     }
 
     try {
-      // WebSocket URL 구성 방식 수정
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${
-        import.meta.env.VITE_API_HOST
+        import.meta.env.VITE_WS_URL
       }/ws/notifications/${user.id}?token=${token}`;
+      console.log("Connecting to WebSocket:", wsUrl);
 
       this.ws = new WebSocket(wsUrl);
-
-      // 연결 상태 처리 개선
-      this.ws.onopen = () => {
-        console.log("WebSocket connected successfully");
-        this.reconnectAttempts = 0;
-        this.startPingInterval();
-      };
-
-      // 에러 처리 개선
-      this.ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        this.cleanup();
-        this.handleReconnect();
-      };
+      this.setupEventHandlers();
+      this.startPingInterval();
     } catch (error) {
       console.error("Error establishing WebSocket connection:", error);
       this.handleReconnect();
     }
-
-    const wsUrl = `${import.meta.env.VITE_WS_URL}/ws/notifications/${
-      user.id
-    }?token=${token}`;
-
-    this.ws = new WebSocket(wsUrl);
-    this.setupEventHandlers();
-    this.startPingInterval();
   }
 
-  private setupEventHandlers() {
+  private setupEventHandlers(): void {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
       console.log("WebSocket connected successfully");
       this.reconnectAttempts = 0;
+      this.processPendingMessages();
     };
 
     this.ws.onmessage = (event: MessageEvent) => {
@@ -81,6 +74,11 @@ class WebSocketService {
 
         if (message.type === "ping") {
           this.handlePing();
+          return;
+        }
+
+        if (message.type === "notification") {
+          this.handleNotification(message.payload as NotificationPayload);
           return;
         }
 
@@ -103,13 +101,27 @@ class WebSocketService {
     };
   }
 
-  private handlePing() {
+  private handlePing(): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type: "pong" }));
     }
   }
 
-  private startPingInterval() {
+  private handleNotification(notification: NotificationPayload): void {
+    if (Notification.permission === "granted") {
+      new Notification(notification.title, {
+        body: notification.message,
+        icon: "/notification-icon.png",
+      });
+    }
+
+    this.broadcastMessage({
+      type: "notification",
+      payload: notification,
+    });
+  }
+
+  private startPingInterval(): void {
     this.pingInterval = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({ type: "ping" }));
@@ -117,21 +129,37 @@ class WebSocketService {
     }, this.options.pingInterval);
   }
 
-  private handleReconnect() {
-    if (this.reconnectAttempts < (this.options.maxReconnectAttempts || 5)) {
-      setTimeout(() => {
-        console.log(
-          `Attempting to reconnect... (${this.reconnectAttempts + 1})`
-        );
-        this.reconnectAttempts++;
-        this.connect();
-      }, this.options.reconnectTimeout);
-    } else {
+  private handleReconnect(): void {
+    if (this.reconnectAttempts >= (this.options.maxReconnectAttempts || 5)) {
       console.error("Max reconnection attempts reached");
+      return;
+    }
+
+    this.reconnectTimer = setTimeout(() => {
+      console.log(`Attempting to reconnect... (${this.reconnectAttempts + 1})`);
+      this.reconnectAttempts++;
+      this.connect();
+    }, this.calculateReconnectTimeout());
+  }
+
+  private calculateReconnectTimeout(): number {
+    // 지수 백오프 적용
+    return Math.min(
+      1000 * Math.pow(2, this.reconnectAttempts),
+      this.options.reconnectTimeout || 30000
+    );
+  }
+
+  private processPendingMessages(): void {
+    while (this.pendingMessages.length > 0 && this.isConnected()) {
+      const message = this.pendingMessages.shift();
+      if (message) {
+        this.sendMessage(message);
+      }
     }
   }
 
-  private broadcastMessage(message: WebSocketMessage) {
+  private broadcastMessage(message: WebSocketMessage): void {
     this.messageHandlers.forEach((handler) => {
       try {
         handler(message);
@@ -141,22 +169,42 @@ class WebSocketService {
     });
   }
 
-  addMessageHandler(handler: WebSocketEventHandler) {
+  public addMessageHandler(handler: WebSocketEventHandler): void {
     this.messageHandlers.add(handler);
   }
 
-  removeMessageHandler(handler: WebSocketEventHandler) {
+  public removeMessageHandler(handler: WebSocketEventHandler): void {
     this.messageHandlers.delete(handler);
   }
 
-  private cleanup() {
+  public sendMessage(message: WebSocketMessage): boolean {
+    if (!this.isConnected()) {
+      this.pendingMessages.push(message);
+      return false;
+    }
+
+    try {
+      this.ws?.send(JSON.stringify(message));
+      return true;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      this.pendingMessages.push(message);
+      return false;
+    }
+  }
+
+  private cleanup(): void {
     if (this.pingInterval) {
       clearInterval(this.pingInterval);
       this.pingInterval = null;
     }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
   }
 
-  disconnect() {
+  public disconnect(): void {
     this.cleanup();
     if (this.ws) {
       this.ws.close();
@@ -164,11 +212,21 @@ class WebSocketService {
     }
   }
 
-  isConnected(): boolean {
+  public isConnected(): boolean {
     return this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  public getConnectionStats(): {
+    isConnected: boolean;
+    reconnectAttempts: number;
+    pendingMessages: number;
+  } {
+    return {
+      isConnected: this.isConnected(),
+      reconnectAttempts: this.reconnectAttempts,
+      pendingMessages: this.pendingMessages.length,
+    };
   }
 }
 
 export const wsService = new WebSocketService();
-
-export type { WebSocketMessage, WebSocketEventHandler, WebSocketOptions };

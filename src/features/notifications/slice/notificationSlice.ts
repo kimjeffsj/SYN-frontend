@@ -1,11 +1,10 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "@/app/store";
-import { Notification } from "../type/notification";
-import { WebSocketMessage } from "@/services/websocket";
-import axios from "axios";
+import { NotificationItem } from "../type/notification";
+import { notificationApi } from "../api/announcementApi";
 
 interface NotificationState {
-  notifications: Notification[];
+  notifications: NotificationItem[];
   unreadCount: number;
   isLoading: boolean;
   error: string | null;
@@ -28,14 +27,7 @@ export const fetchNotifications = createAsyncThunk(
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/notifications`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      return response.data;
+      return await notificationApi.getNotifications(token);
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : "Failed to fetch notifications"
@@ -52,15 +44,7 @@ export const markNotificationAsRead = createAsyncThunk(
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      return notificationId;
+      return await notificationApi.markAsRead(token, notificationId);
     } catch (error) {
       return rejectWithValue(
         error instanceof Error
@@ -71,7 +55,7 @@ export const markNotificationAsRead = createAsyncThunk(
   }
 );
 
-// Mark as read all notifications
+// Mark all as read
 export const markAllNotificationsAsRead = createAsyncThunk(
   "notifications/markAllAsRead",
   async (_, { getState, rejectWithValue }) => {
@@ -79,15 +63,7 @@ export const markAllNotificationsAsRead = createAsyncThunk(
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/notifications/read-all`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      return;
+      await notificationApi.markAllAsRead(token);
     } catch (error) {
       return rejectWithValue(
         error instanceof Error
@@ -102,23 +78,20 @@ const notificationSlice = createSlice({
   name: "notifications",
   initialState,
   reducers: {
-    setWebSocketConnected: (state, action: PayloadAction<boolean>) => {
+    setWebSocketConnected: (state, action) => {
       state.isWebSocketConnected = action.payload;
     },
-    addNotification: (state, action: PayloadAction<Notification>) => {
+    addNotification: (state, action) => {
       state.notifications.unshift(action.payload);
-      if (!action.payload.isRead) {
+      if (!action.payload.is_read) {
         state.unreadCount += 1;
       }
     },
-    handleWebSocketMessage: (
-      state,
-      action: PayloadAction<WebSocketMessage>
-    ) => {
+    handleWebSocketMessage: (state, action) => {
       if (action.payload.type === "notification") {
-        const notification = action.payload.payload as Notification;
+        const notification = action.payload.payload as NotificationItem;
         state.notifications.unshift(notification);
-        if (!notification.isRead) {
+        if (!notification.is_read) {
           state.unreadCount += 1;
         }
       }
@@ -147,17 +120,17 @@ const notificationSlice = createSlice({
       // markNotificationAsRead
       .addCase(markNotificationAsRead.fulfilled, (state, action) => {
         const notification = state.notifications.find(
-          (n) => n.id === action.payload
+          (n) => n.id === action.payload.id
         );
-        if (notification && !notification.isRead) {
-          notification.isRead = true;
+        if (notification && !notification.is_read) {
+          notification.is_read = true;
           state.unreadCount = Math.max(0, state.unreadCount - 1);
         }
       })
       // markAllNotificationsAsRead
       .addCase(markAllNotificationsAsRead.fulfilled, (state) => {
         state.notifications.forEach((notification) => {
-          notification.isRead = true;
+          notification.is_read = true;
         });
         state.unreadCount = 0;
       });
