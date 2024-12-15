@@ -88,6 +88,28 @@ export const updateAnnouncement = createAsyncThunk(
   }
 );
 
+export const deleteAnnouncement = createAsyncThunk(
+  "announcement/delete",
+  async (id: number, { getState, rejectWithValue, dispatch }) => {
+    try {
+      const token = (getState() as RootState).auth.accessToken;
+      if (!token) throw new Error("No access token");
+
+      await announcementApi.deleteAnnouncement(token, id);
+
+      dispatch(fetchAnnouncements());
+      return id;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(
+          error.response?.data?.detail || "Failed to delete announcement"
+        );
+      }
+      return rejectWithValue("An unexpected error occurred");
+    }
+  }
+);
+
 const announcementSlice = createSlice({
   name: "announcement",
   initialState,
@@ -139,6 +161,23 @@ const announcementSlice = createSlice({
         if (index !== -1) {
           state.announcements.items[index] = action.payload;
         }
+      })
+      // Delete announcement
+      .addCase(deleteAnnouncement.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteAnnouncement.fulfilled, (state, action) => {
+        state.isLoading = false;
+
+        state.announcements.items = state.announcements.items.filter(
+          (announcement) => announcement.id !== action.payload
+        );
+        state.announcements.total -= 1;
+      })
+      .addCase(deleteAnnouncement.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

@@ -1,97 +1,75 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, X, Calendar, Clock, AlertCircle } from "lucide-react";
-import { Notification } from "../type/notification";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/store";
+import { format } from "date-fns";
 
-const NotificationCenter = () => {
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "../slice/notificationSlice";
+import { NotificationItem, NotificationType } from "../type/notification";
+
+const NotificationCenter: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [wsConnected, setWsConnected] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const { notifications, unreadCount, isWebSocketConnected } = useSelector(
+    (state: RootState) => state.notification
+  );
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userString = localStorage.getItem("user");
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
-    if (!token || !userString) return;
+  useEffect(() => {
+    if (!isWebSocketConnected) {
+      dispatch({ type: "notification/connect" });
+    }
 
-    const user = JSON.parse(userString);
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, [dispatch, isWebSocketConnected]);
 
-    const wsUrl = `${import.meta.env.VITE_WS_URL}/ws/notifications/${
-      user.id
-    }?token=${token}`;
-
-    const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      setWsConnected(true);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === "notification") {
-          setNotifications((prev) => [data.payload, ...prev]);
-          setUnreadCount((prev) => prev + 1);
-        }
-      } catch (error) {
-        console.error("Error processing message:", error);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setWsConnected(false);
-    };
-
-    ws.onclose = () => {
-      setWsConnected(false);
-    };
-
-    // Cleanup on unmount
-    return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
-      }
-    };
-  }, []);
-
-  const handleMarkAsRead = async (notificationId: number) => {
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setNotifications((prev) =>
-        prev.map((notification) =>
-          notification.id === notificationId
-            ? { ...notification, isRead: true }
-            : notification
-        )
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error("Failed to mark notification as read:", error);
+  const getNotificationIcon = (type: NotificationType) => {
+    switch (type) {
+      case NotificationType.SCHEDULE_CHANGE:
+        return <Calendar className="w-4 h-4 text-blue-500" />;
+      case NotificationType.SHIFT_TRADE:
+        return <Clock className="w-4 h-4 text-purple-500" />;
+      case NotificationType.ANNOUNCEMENT:
+        return <AlertCircle className="w-4 h-4 text-red-500" />;
+      default:
+        return <Bell className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "SCHEDULE_CHANGE":
-        return <Calendar className="w-5 h-5 text-blue-500" />;
-      case "SHIFT_TRADE":
-        return <Clock className="w-5 h-5 text-purple-500" />;
-      case "ANNOUNCEMENT":
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return <Bell className="w-5 h-5 text-gray-500" />;
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    if (!notification.is_read) {
+      await dispatch(markNotificationAsRead(notification.id));
     }
+
+    switch (notification.type) {
+      case NotificationType.SCHEDULE_CHANGE:
+        if ("schedule_id" in notification.data) {
+          window.location.href = `/schedule?date=${notification.data.schedule_id}`;
+        }
+        break;
+      case NotificationType.SHIFT_TRADE:
+        if ("trade_id" in notification.data) {
+          window.location.href = `/trades/${notification.data.trade_id}`;
+        }
+        break;
+      case NotificationType.ANNOUNCEMENT:
+        window.location.href = "/announcements";
+        break;
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    await dispatch(markAllNotificationsAsRead());
   };
 
   return (
@@ -111,13 +89,23 @@ const NotificationCenter = () => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border z-50">
           <div className="p-4 border-b flex justify-between items-center">
-            <h3 className="font-semibold">Notifications</h3>
             <div className="flex items-center space-x-2">
-              {wsConnected && (
+              <h3 className="font-semibold">Notifications</h3>
+              {isWebSocketConnected && (
                 <span className="flex items-center text-xs text-green-600">
                   <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
                   Connected
                 </span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="text-xs text-primary hover:text-primary/80"
+                >
+                  Mark all as read
+                </button>
               )}
               <button
                 onClick={() => setIsOpen(false)}
@@ -137,25 +125,31 @@ const NotificationCenter = () => {
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b hover:bg-gray-50 ${
-                    !notification.isRead ? "bg-blue-50" : ""
+                  className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
+                    !notification.is_read ? "bg-blue-50" : ""
                   }`}
-                  onClick={() =>
-                    !notification.isRead && handleMarkAsRead(notification.id)
-                  }
+                  onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start">
                     {getNotificationIcon(notification.type)}
-                    <div>
-                      <p className="font-medium text-sm">
+                    <div className="ml-3 flex-1">
+                      <p className="text-sm font-medium text-gray-900">
                         {notification.title}
                       </p>
-                      <p className="text-gray-600 text-sm mt-1">
+                      <p className="text-sm text-gray-500 mt-1">
                         {notification.message}
                       </p>
-                      <p className="text-gray-400 text-xs mt-1">
-                        {notification.time}
-                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-gray-400">
+                          {format(
+                            new Date(notification.created_at),
+                            "MMM d, yyyy HH:mm"
+                          )}
+                        </span>
+                        {notification.priority === "HIGH" && (
+                          <StatusBadge status="pending" size="sm" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

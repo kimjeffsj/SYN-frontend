@@ -35,6 +35,7 @@ export interface AnnouncementDetailProps {
   onClose: () => void;
   canEdit?: boolean;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export interface AnnouncementModalProps {
