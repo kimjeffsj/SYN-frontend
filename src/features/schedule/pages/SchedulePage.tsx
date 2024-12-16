@@ -7,10 +7,11 @@ import { fetchMySchedules } from "../slice/scheduleSlice";
 
 export const SchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error } = useSelector(
+  const { isLoading, error, schedules } = useSelector(
     (state: RootState) => state.schedule
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     dispatch(fetchMySchedules());
@@ -33,7 +34,11 @@ export const SchedulePage = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <ScheduleCalendar />
+        <ScheduleCalendar
+          schedules={schedules}
+          currentDate={currentDate}
+          onDateChange={setCurrentDate}
+        />
       )}
 
       <CreateScheduleForm
