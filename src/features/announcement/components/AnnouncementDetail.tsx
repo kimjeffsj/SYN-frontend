@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal } from "@/shared/components/Modal";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { Clock, Pin, Edit } from "lucide-react";
+import { Clock, Pin, Edit, Trash2 } from "lucide-react";
 import { AnnouncementDetailProps } from "../types/announcement.type";
 
 export const AnnouncementDetail: React.FC<AnnouncementDetailProps> = ({
@@ -10,6 +10,7 @@ export const AnnouncementDetail: React.FC<AnnouncementDetailProps> = ({
   onClose,
   canEdit = false,
   onEdit,
+  onDelete,
 }) => {
   if (!announcement) return null;
 
@@ -38,7 +39,7 @@ export const AnnouncementDetail: React.FC<AnnouncementDetailProps> = ({
               <Pin className="w-4 h-4 text-red-500" />
             )}
             <StatusBadge
-              status={announcement.priority === "high" ? "pending" : "active"}
+              status={announcement.priority} // 직접 priority 값을 사용
               size="sm"
             />
           </div>
@@ -67,15 +68,28 @@ export const AnnouncementDetail: React.FC<AnnouncementDetailProps> = ({
               )}
           </div>
 
-          {/* Edit button for admins */}
-          {canEdit && onEdit && (
-            <button
-              onClick={onEdit}
-              className="flex items-center px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </button>
+          {/* Edit and Delete buttons for admins */}
+          {canEdit && (
+            <div className="flex items-center gap-2">
+              {onEdit && (
+                <button
+                  onClick={onEdit}
+                  className="flex items-center px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={onDelete}
+                  className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </button>
+              )}
+            </div>
           )}
         </div>
 
