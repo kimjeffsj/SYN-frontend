@@ -92,17 +92,6 @@ export const AdminSchedulePage = () => {
               Overview
             </button>
             <button
-              onClick={() => setView("calendar")}
-              className={`px-3 py-1.5 rounded-md flex items-center ${
-                view === "calendar"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Calendar
-            </button>
-            <button
               onClick={() => setView("table")}
               className={`px-3 py-1.5 rounded-md flex items-center ${
                 view === "table"
