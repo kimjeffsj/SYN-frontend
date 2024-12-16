@@ -16,6 +16,7 @@ export interface Schedule {
   end_time: string;
   shift_type: string;
   user_id: number;
+  status: string;
 }
 
 export interface ShiftTradeRequest {
