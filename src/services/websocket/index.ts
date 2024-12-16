@@ -143,7 +143,6 @@ class WebSocketService {
   }
 
   private calculateReconnectTimeout(): number {
-    // 지수 백오프 적용
     return Math.min(
       1000 * Math.pow(2, this.reconnectAttempts),
       this.options.reconnectTimeout || 30000

@@ -9,8 +9,10 @@ import {
   fetchNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  addNotification,
 } from "../slice/notificationSlice";
 import { NotificationItem, NotificationType } from "../type/notification";
+import { WebSocketMessage, wsService } from "@/services/websocket";
 
 const NotificationCenter: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,9 +23,7 @@ const NotificationCenter: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchNotifications());
-  }, [dispatch]);
 
-  useEffect(() => {
     if (!isWebSocketConnected) {
       dispatch({ type: "notification/connect" });
     }
@@ -31,6 +31,24 @@ const NotificationCenter: React.FC = () => {
     if (Notification.permission === "default") {
       Notification.requestPermission();
     }
+  }, [dispatch, isWebSocketConnected]);
+
+  useEffect(() => {
+    const handleNewNotification = (message: WebSocketMessage<unknown>) => {
+      if (message.type === "notification" && message.payload) {
+        dispatch(addNotification(message.payload));
+      }
+    };
+
+    if (isWebSocketConnected) {
+      wsService.addMessageHandler(handleNewNotification);
+    }
+
+    return () => {
+      if (isWebSocketConnected) {
+        wsService.removeMessageHandler(handleNewNotification);
+      }
+    };
   }, [dispatch, isWebSocketConnected]);
 
   const getNotificationIcon = (type: NotificationType) => {

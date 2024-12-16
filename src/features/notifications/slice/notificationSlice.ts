@@ -90,9 +90,14 @@ const notificationSlice = createSlice({
     handleWebSocketMessage: (state, action) => {
       if (action.payload.type === "notification") {
         const notification = action.payload.payload as NotificationItem;
-        state.notifications.unshift(notification);
-        if (!notification.is_read) {
-          state.unreadCount += 1;
+        const exists = state.notifications.some(
+          (n) => n.id === notification.id
+        );
+        if (!exists) {
+          state.notifications.unshift(notification);
+          if (!notification.is_read) {
+            state.unreadCount += 1;
+          }
         }
       }
     },
