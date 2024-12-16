@@ -25,15 +25,29 @@ import {
 } from "date-fns";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { getStatusBgStyle } from "@/shared/utils/status.utils";
+import { ShiftDetail } from "./ShiftDetail";
 
 type CalendarView = "week" | "month";
 
-export const ScheduleCalendar = () => {
-  const { schedules, isLoading, error } = useSelector(
+interface ScheduleCalendarProps {
+  schedules: Schedule[];
+  currentDate: Date;
+  onDateChange: (date: Date) => void;
+}
+
+export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
+  schedules: externalSchedules,
+  currentDate: externalDate,
+  onDateChange,
+}) => {
+  const { isLoading, error } = useSelector(
     (state: RootState) => state.schedule
   );
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>("week");
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  );
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString([], {
@@ -43,8 +57,8 @@ export const ScheduleCalendar = () => {
   };
 
   const getDaysInMonth = () => {
-    const start = startOfMonth(currentDate);
-    const end = endOfMonth(currentDate);
+    const start = startOfMonth(externalDate);
+    const end = endOfMonth(externalDate);
     const days = [];
     const firstDayOfMonth = start.getDay();
 
@@ -70,29 +84,35 @@ export const ScheduleCalendar = () => {
   };
 
   const getDaysInWeek = () => {
-    const start = startOfWeek(currentDate);
+    const start = startOfWeek(externalDate);
     return [...Array(7)].map((_, i) => addDays(start, i));
   };
 
   const moveNext = () => {
     if (view === "week") {
-      setCurrentDate(addWeeks(currentDate, 1));
+      onDateChange(addWeeks(externalDate, 1));
     } else {
-      setCurrentDate(addMonths(currentDate, 1));
+      onDateChange(addMonths(externalDate, 1));
     }
   };
 
   const movePrevious = () => {
     if (view === "week") {
-      setCurrentDate(subWeeks(currentDate, 1));
+      onDateChange(subWeeks(externalDate, 1));
     } else {
-      setCurrentDate(subMonths(currentDate, 1));
+      onDateChange(subMonths(externalDate, 1));
     }
+  };
+
+  const handleScheduleClick = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setShowDetailModal(true);
   };
 
   const renderSchedule = (schedule: Schedule) => (
     <div
       key={schedule.id}
+      onClick={() => handleScheduleClick(schedule)}
       className={`${getStatusBgStyle(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         schedule.status.toLowerCase() as any
@@ -152,7 +172,10 @@ export const ScheduleCalendar = () => {
         <div className="flex items-center space-x-2">
           <Calendar className="w-5 h-5 text-gray-600" />
           <span className="font-medium">
-            {format(currentDate, view === "week" ? "MMM d, yyyy" : "MMMM yyyy")}
+            {format(
+              externalDate,
+              view === "week" ? "MMM d, yyyy" : "MMMM yyyy"
+            )}
           </span>
         </div>
 
@@ -164,12 +187,12 @@ export const ScheduleCalendar = () => {
   );
 
   const renderDayCell = (date: Date) => {
-    const daySchedules = schedules.filter((schedule) =>
+    const daySchedules = externalSchedules.filter((schedule) =>
       isSameDay(new Date(schedule.start_time), date)
     );
 
     const isToday = isSameDay(date, new Date());
-    const isCurrentMonth = isSameMonth(date, currentDate);
+    const isCurrentMonth = isSameMonth(date, externalDate);
 
     return (
       <div
@@ -222,6 +245,15 @@ export const ScheduleCalendar = () => {
           {days.map((day) => renderDayCell(day))}
         </div>
       </div>
+      {/* Shift Detail Modal */}
+      <ShiftDetail
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedSchedule(null);
+        }}
+        schedule={selectedSchedule}
+      />
     </div>
   );
 };

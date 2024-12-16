@@ -8,10 +8,11 @@ import {
   deleteSchedule,
 } from "../slice/scheduleSlice";
 import ScheduleCalendar from "../components/ScheduleCalendar";
-
 import CreateScheduleForm from "../components/CreateScheduleForm";
 import { ScheduleStatus } from "../types/schedule.type";
 import ScheduleManagement from "../components/ScheduleManagement";
+import { WeeklyStats } from "../components/WeeklyStats";
+import { DailyEmployeeList } from "../components/DailyEmployeeList";
 
 export const AdminSchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,6 +21,11 @@ export const AdminSchedulePage = () => {
   );
   const [view, setView] = useState<"calendar" | "table">("calendar");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [activeSection, setActiveSection] = useState<
+    "stats" | "calendar" | "table"
+  >("stats");
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     dispatch(fetchAllSchedules());
@@ -43,6 +49,12 @@ export const AdminSchedulePage = () => {
       console.error("Failed to delete schedule:", error);
     }
   };
+
+  const dailySchedules = schedules.filter(
+    (schedule) =>
+      new Date(schedule.start_time).toDateString() ===
+      selectedDate.toDateString()
+  );
 
   if (error) {
     return (
@@ -69,15 +81,15 @@ export const AdminSchedulePage = () => {
           {/* View Toggle */}
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
-              onClick={() => setView("calendar")}
+              onClick={() => setActiveSection("stats")}
               className={`px-3 py-1.5 rounded-md flex items-center ${
-                view === "calendar"
+                activeSection === "stats"
                   ? "bg-white text-primary shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
               <Calendar className="w-4 h-4 mr-2" />
-              Calendar
+              Overview
             </button>
             <button
               onClick={() => setView("table")}
@@ -108,16 +120,39 @@ export const AdminSchedulePage = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow">
-          {view === "calendar" ? (
-            <ScheduleCalendar />
-          ) : (
-            <ScheduleManagement
-              schedules={schedules}
-              onStatusChange={handleStatusChange}
-              onDelete={handleDelete}
-            />
+        <div className="space-y-6">
+          {activeSection === "stats" && (
+            <>
+              <WeeklyStats
+                schedules={schedules}
+                pendingLeaves={0} // TODO: Implement pending leaves count
+                currentDate={currentDate}
+                onDateSelect={(date) => {
+                  setCurrentDate(date);
+                  setSelectedDate(date);
+                }}
+              />
+              <DailyEmployeeList
+                date={selectedDate}
+                schedules={dailySchedules}
+              />
+            </>
           )}
+          <div className="bg-white rounded-lg shadow">
+            {activeSection === "calendar" ? (
+              <ScheduleCalendar
+                schedules={schedules}
+                currentDate={currentDate}
+                onDateChange={setCurrentDate}
+              />
+            ) : activeSection === "table" ? (
+              <ScheduleManagement
+                schedules={schedules}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+              />
+            ) : null}
+          </div>
         </div>
       )}
 
