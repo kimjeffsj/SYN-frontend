@@ -1,5 +1,5 @@
 import React from "react";
-import { Pin, ChevronRight, Clock } from "lucide-react";
+import { ChevronRight, Clock } from "lucide-react";
 
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { AnnouncementListProps } from "../types/announcement.type";
@@ -39,15 +39,7 @@ export const AnnouncementList: React.FC<AnnouncementListProps> = ({
               </div>
 
               <div className="flex items-center space-x-2">
-                {announcement.priority === "high" && (
-                  <Pin className="w-4 h-4 text-red-500" />
-                )}
-                <StatusBadge
-                  status={
-                    announcement.priority === "high" ? "pending" : "active"
-                  }
-                  size="sm"
-                />
+                <StatusBadge status={announcement.priority} size="sm" />
               </div>
             </div>
 

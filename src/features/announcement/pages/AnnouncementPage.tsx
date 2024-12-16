@@ -13,6 +13,7 @@ import {
   updateAnnouncement,
   setSelectedAnnouncement,
   clearSelectedAnnouncement,
+  deleteAnnouncement,
 } from "../slice/announcementSlice";
 import {
   Announcement,
@@ -72,6 +73,17 @@ export default function AnnouncementsPage() {
       throw new Error(
         error instanceof Error ? error.message : "Failed to update announcement"
       );
+    }
+  };
+
+  const handleDelete = async (announcement: Announcement) => {
+    if (window.confirm("Are you sure you want to delete this announcement?")) {
+      try {
+        await dispatch(deleteAnnouncement(announcement.id)).unwrap();
+        dispatch(clearSelectedAnnouncement());
+      } catch (error) {
+        console.error("Failed to delete announcement:", error);
+      }
     }
   };
 
@@ -198,6 +210,7 @@ export default function AnnouncementsPage() {
           announcement={selectedAnnouncement}
           canEdit={isAdmin}
           onEdit={() => handleEdit(selectedAnnouncement)}
+          onDelete={() => handleDelete(selectedAnnouncement)}
         />
       )}
     </div>

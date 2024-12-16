@@ -165,7 +165,7 @@ const NotificationCenter: React.FC = () => {
                           )}
                         </span>
                         {notification.priority === "HIGH" && (
-                          <StatusBadge status="pending" size="sm" />
+                          <StatusBadge status="high" size="sm" />
                         )}
                       </div>
                     </div>

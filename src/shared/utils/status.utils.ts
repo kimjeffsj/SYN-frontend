@@ -7,7 +7,9 @@ export type StatusColor =
   | "active"
   | "onLeave"
   | "trade"
-  | "giveaway";
+  | "giveaway"
+  | "high"
+  | "normal";
 
 export const getStatusStyle = (status: StatusColor): string => {
   const styles: Record<StatusColor, string> = {
@@ -23,6 +25,9 @@ export const getStatusStyle = (status: StatusColor): string => {
 
     trade: "bg-violet-100 text-violet-700 border-violet-200",
     giveaway: "bg-orange-100 text-orange-700 border-orange-200",
+
+    high: "bg-red-100 text-red-700 border-red-200",
+    normal: "bg-emerald-100 text-emerald-700 border-emerald-200",
   };
 
   return styles[status.toLowerCase() as StatusColor] || styles.pending;
@@ -39,6 +44,9 @@ export const getStatusBgStyle = (status: StatusColor): string => {
     onLeave: "border-gray-200",
     trade: "border-violet-200",
     giveaway: "border-orange-200",
+
+    high: "border-red-200",
+    normal: "border-emerald-200",
   };
 
   return styles[status.toLowerCase() as StatusColor] || styles.pending;

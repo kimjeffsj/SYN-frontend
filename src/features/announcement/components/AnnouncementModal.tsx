@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal } from "@/shared/components/Modal";
 import { AlertCircle } from "lucide-react";
 import {
@@ -17,6 +17,23 @@ export const AnnouncementModal: React.FC<AnnouncementModalProps> = ({
     content: initialData?.content || "",
     priority: initialData?.priority || "normal",
   });
+
+  // Reset form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title,
+        content: initialData.content,
+        priority: initialData.priority,
+      });
+    } else {
+      setFormData({
+        title: "",
+        content: "",
+        priority: "normal",
+      });
+    }
+  }, [initialData]);
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
