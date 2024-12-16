@@ -25,6 +25,7 @@ import {
 } from "date-fns";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { getStatusBgStyle } from "@/shared/utils/status.utils";
+import { ShiftDetail } from "./ShiftDetail";
 
 type CalendarView = "week" | "month";
 
@@ -34,6 +35,10 @@ export const ScheduleCalendar = () => {
   );
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>("week");
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  );
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString([], {
@@ -90,9 +95,15 @@ export const ScheduleCalendar = () => {
     }
   };
 
+  const handleScheduleClick = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setShowDetailModal(true);
+  };
+
   const renderSchedule = (schedule: Schedule) => (
     <div
       key={schedule.id}
+      onClick={() => handleScheduleClick(schedule)}
       className={`${getStatusBgStyle(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         schedule.status.toLowerCase() as any
@@ -222,6 +233,15 @@ export const ScheduleCalendar = () => {
           {days.map((day) => renderDayCell(day))}
         </div>
       </div>
+      {/* Shift Detail Modal */}
+      <ShiftDetail
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedSchedule(null);
+        }}
+        schedule={selectedSchedule}
+      />
     </div>
   );
 };
