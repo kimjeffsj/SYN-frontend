@@ -148,7 +148,10 @@ export function TradeRequestModal({
           </label>
           <ScheduleSelector
             selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
+            onDateChange={(date: Date) => {
+              console.log("Date changed:", date); // 디버깅
+              setSelectedDate(date);
+            }}
             onScheduleSelect={(scheduleId) =>
               setFormData((prev) => ({ ...prev, scheduleId }))
             }
@@ -196,7 +199,7 @@ export function TradeRequestModal({
           </label>
           <textarea
             id="reason"
-            rows={4}
+            rows={2}
             className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary/20 focus:border-primary"
             placeholder="Please provide a reason for your request..."
             value={formData.reason}

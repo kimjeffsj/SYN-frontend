@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Schedule } from "../types/shift-trade.type";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { Calendar, ChevronDown, Clock } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { StatusColor } from "@/shared/utils/status.utils";
@@ -37,6 +37,7 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
       if (!schedule?.start_time) return false;
 
       const scheduleDate = new Date(schedule.start_time);
+
       return (
         scheduleDate.getFullYear() === selectedDate.getFullYear() &&
         scheduleDate.getMonth() === selectedDate.getMonth() &&
@@ -128,9 +129,11 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
                 type="date"
                 value={selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""}
                 onChange={(e) => {
-                  const date = new Date(e.target.value);
-                  onDateChange(date);
-                  setIsCalendarOpen(false);
+                  const date = parseISO(e.target.value);
+                  if (isValid(date)) {
+                    onDateChange(date);
+                    setIsCalendarOpen(false);
+                  }
                 }}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
               />

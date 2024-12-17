@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Clock, Calendar, User, CheckCircle, XCircle } from "lucide-react";
+import {
+  Clock,
+  Calendar,
+  User,
+  CheckCircle,
+  XCircle,
+  Trash2,
+} from "lucide-react";
 import { Modal } from "@/shared/components/Modal";
 import { Schedule, ShiftTradeRequest } from "../types/shift-trade.type";
 import { getStatusBgStyle, StatusColor } from "@/shared/utils/status.utils";
@@ -15,6 +22,11 @@ interface TradeDetailProps {
   onAcceptResponse?: (responseId: number) => Promise<void>;
   onRejectResponse?: (responseId: number) => Promise<void>;
   currentUserId: number;
+  onUpdateStatus: (
+    responseId: number,
+    status: "ACCEPTED" | "REJECTED"
+  ) => Promise<void>;
+  onDelete?: (requestId: number) => Promise<void>;
 }
 
 export function TradeDetail({
@@ -26,7 +38,9 @@ export function TradeDetail({
   onAcceptResponse,
   onRejectResponse,
   currentUserId,
+  onDelete,
 }: TradeDetailProps) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
     null
   );
@@ -64,6 +78,20 @@ export function TradeDetail({
     });
   };
 
+  const renderHeaderActions = () => {
+    if (!isRequester) return null;
+
+    return (
+      <button
+        onClick={() => onDelete?.(request.id)}
+        className="flex items-center px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
+      >
+        <Trash2 className="w-4 h-4 mr-1" />
+        Delete Request
+      </button>
+    );
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -84,6 +112,7 @@ export function TradeDetail({
               </div>
             </div>
           </div>
+          {renderHeaderActions()}
           <div className="flex items-center space-x-2">
             <StatusBadge
               status={request.status.toLowerCase() as StatusColor}
@@ -206,11 +235,14 @@ export function TradeDetail({
             )}
 
             <ScheduleSelector
-              selectedDate={null}
-              onDateChange={() => {}}
+              selectedScheduleId={selectedScheduleId}
               onScheduleSelect={setSelectedScheduleId}
               schedules={userSchedules}
-              selectedScheduleId={selectedScheduleId}
+              selectedDate={selectedDate}
+              onDateChange={(date) => {
+                setSelectedDate(date);
+                console.log("Selected date:", date); // 디버깅용
+              }}
               mode="response"
             />
 

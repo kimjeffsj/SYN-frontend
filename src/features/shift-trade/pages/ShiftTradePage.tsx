@@ -19,6 +19,7 @@ export default function ShiftTradePage() {
     (state: RootState) => state.shiftTrade
   );
   const { schedules } = useSelector((state: RootState) => state.schedule);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     dispatch(fetchMySchedules());
@@ -55,10 +56,7 @@ export default function ShiftTradePage() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleRespond = async (responseData: {
-    offeredShiftId: number;
-    content: string;
-  }) => {
+  const handleRespond = async (scheduleId: number) => {
     if (!selectedRequest) return;
 
     try {
@@ -67,8 +65,8 @@ export default function ShiftTradePage() {
           tradeId: selectedRequest.id,
           data: {
             trade_request_id: selectedRequest.id,
-            offered_shift_id: responseData.offeredShiftId,
-            content: responseData.content,
+            offered_shift_id: scheduleId,
+            content: "", // Add default content or modify component to accept content
           },
         })
       ).unwrap();
@@ -95,6 +93,16 @@ export default function ShiftTradePage() {
       dispatch(fetchTradeRequests({}));
     } catch (error) {
       console.error("Failed to update response status: ", error);
+    }
+  };
+
+  const handleDeleteRequest = async (requestId: number) => {
+    try {
+      // TODO: Implement delete trade request
+      // await dispatch(deleteTradeRequest(requestId)).unwrap();
+      setSelectedRequest(null);
+    } catch (error) {
+      console.error("Failed to delete trade request: ", error);
     }
   };
 
@@ -195,7 +203,6 @@ export default function ShiftTradePage() {
           schedules={schedules}
         />
       )}
-
       {/* Trade Detail Modal */}
       {selectedRequest && (
         <TradeDetail
@@ -204,6 +211,9 @@ export default function ShiftTradePage() {
           request={selectedRequest}
           onRespond={handleRespond}
           onUpdateStatus={handleUpdateResponseStatus}
+          userSchedules={schedules}
+          currentUserId={user?.id || 0}
+          onDelete={handleDeleteRequest}
         />
       )}
     </div>
