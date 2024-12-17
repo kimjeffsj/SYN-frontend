@@ -153,8 +153,6 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
           <div className="max-h-[150px] overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {renderScheduleList()}
           </div>
-          {/* Fade effect for scroll indication */}
-          <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none" />
         </div>
       </div>
     </div>

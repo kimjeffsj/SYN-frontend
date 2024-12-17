@@ -105,7 +105,7 @@ export const createTradeResponse = createAsyncThunk(
         tradeId,
         data
       );
-      return { tradeId, response };
+      return response;
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(
@@ -211,12 +211,18 @@ const shiftTradeSlice = createSlice({
 
       // Create response
       .addCase(createTradeResponse.fulfilled, (state, action) => {
-        const { tradeId, response } = action.payload;
-        const request = state.requests.find((r) => r.id === tradeId);
-        if (request) {
+        const response = action.payload;
+        const request = state.requests.find(
+          (r) => r.id === response.trade_request_id
+        );
+        if (request && Array.isArray(request.responses)) {
           request.responses.push(response);
         }
-        if (state.selectedRequest?.id === tradeId) {
+
+        if (state.selectedRequest?.id === response.trade_request_id) {
+          if (!Array.isArray(state.selectedRequest.responses)) {
+            state.selectedRequest.responses = [];
+          }
           state.selectedRequest.responses.push(response);
         }
       })

@@ -71,7 +71,7 @@ export default function ShiftTradePage() {
         })
       ).unwrap();
 
-      dispatch(fetchTradeRequests({}));
+      await dispatch(fetchTradeRequests({}));
       setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to respond to trade request: ", error);

@@ -65,12 +65,15 @@ export const shiftTradeApi = {
     token: string,
     tradeId: number,
     data: CreateTradeResponse
-  ) => {
+  ): Promise<ShiftTradeResponse> => {
     const response = await axios.post<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses`,
       data,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
     return response.data;

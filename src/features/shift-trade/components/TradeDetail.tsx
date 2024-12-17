@@ -12,6 +12,7 @@ import { Schedule, ShiftTradeRequest } from "../types/shift-trade.type";
 import { getStatusBgStyle, StatusColor } from "@/shared/utils/status.utils";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { ScheduleSelector } from "./ScheduleSelector";
+import { toast } from "react-toastify";
 
 interface TradeDetailProps {
   isOpen: boolean;
@@ -61,9 +62,13 @@ export function TradeDetail({
       setError(null);
       await onRespond?.(selectedScheduleId);
       setSelectedScheduleId(null);
+      toast.success("Trade response submitted successfully!");
       onClose();
     } catch (error) {
       setError(
+        error instanceof Error ? error.message : "Failed to submit response"
+      );
+      toast.error(
         error instanceof Error ? error.message : "Failed to submit response"
       );
     } finally {
@@ -241,7 +246,6 @@ export function TradeDetail({
               selectedDate={selectedDate}
               onDateChange={(date) => {
                 setSelectedDate(date);
-                console.log("Selected date:", date); // 디버깅용
               }}
               mode="response"
             />
