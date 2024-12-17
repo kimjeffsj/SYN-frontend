@@ -84,7 +84,7 @@ export function TradeDetail({
             <div className="space-y-2">
               <div className="flex items-center">
                 <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                <span>{request.original_shift.date}</span>
+                <span>{request.original_shift.start_time}</span>
               </div>
               <div className="flex items-center">
                 <Clock className="w-4 h-4 text-gray-400 mr-2" />
@@ -104,7 +104,7 @@ export function TradeDetail({
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                  <span>{request.preferred_shift.date}</span>
+                  <span>{request.preferred_shift.start_time}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 text-gray-400 mr-2" />

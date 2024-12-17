@@ -11,11 +11,11 @@ export interface UserInfo {
 
 export interface Schedule {
   id: number;
-  date: string;
   start_time: string;
   end_time: string;
   shift_type: string;
   user_id: number;
+  status: string;
 }
 
 export interface ShiftTradeRequest {
