@@ -1,18 +1,21 @@
-import { Clock, CheckCircle, XCircle, User } from "lucide-react";
-import { ShiftTradeRequest, UrgencyLevel } from "../types/shift-trade.type";
+import { Clock, User } from "lucide-react";
+import {
+  Schedule,
+  ShiftTradeRequest,
+  UrgencyLevel,
+} from "../types/shift-trade.type";
 import { getStatusBgStyle } from "@/shared/utils/status.utils";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { formatDistanceToNow, format } from "date-fns";
 
 interface TradeRequestCardProps {
   request: ShiftTradeRequest;
-  onAction?: (requestId: number, action: "accept" | "reject") => void;
   onClick?: (requestId: number) => void;
   className?: string;
 }
 
 export const TradeRequestCard = ({
   request,
-  onAction,
   onClick,
   className = "",
 }: TradeRequestCardProps) => {
@@ -24,6 +27,36 @@ export const TradeRequestCard = ({
     };
     return styles[urgency];
   };
+
+  const formatScheduleDateTime = (schedule: Schedule) => {
+    if (!schedule || !schedule.start_time || !schedule.end_time) {
+      return {
+        date: "N/A",
+        time: "N/A",
+      };
+    }
+
+    try {
+      const startDate = new Date(schedule.start_time);
+      const endDate = new Date(schedule.end_time);
+
+      return {
+        date: format(startDate, "MMM d, yyyy"),
+        time: `${format(startDate, "HH:mm")} - ${format(endDate, "HH:mm")}`,
+      };
+    } catch (error) {
+      console.error("Date formatting error: ", error);
+      return {
+        date: "Invalid date",
+        time: "Invalid time",
+      };
+    }
+  };
+
+  const scheduleInfo = formatScheduleDateTime(request.original_shift);
+  const timeAgo = request.created_at
+    ? formatDistanceToNow(new Date(request.created_at), { addSuffix: true })
+    : "N/A";
 
   return (
     <div
@@ -50,13 +83,13 @@ export const TradeRequestCard = ({
                   </>
                 )}
               </div>
-              <div className="text-sm text-gray-500">{request.created_at}</div>
+              <div className="text-sm text-gray-500">{timeAgo}</div>
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
             <StatusBadge
-              // TODO: create mapping function for type warning any
+              // TODO: Fix type any
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               status={request.status.toLowerCase() as any}
               size="sm"
@@ -71,47 +104,18 @@ export const TradeRequestCard = ({
           </div>
         </div>
 
-        {/* Schedule Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div className={`rounded-lg p-4 ${getStatusBgStyle("active")}`}>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">
-              Original Shift
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center text-sm">
-                <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                <span>{request.original_shift.date}</span>
-              </div>
-              <div className="text-sm text-gray-600">
-                {request.original_shift.start_time} -{" "}
-                {request.original_shift.end_time}
-              </div>
-              <div className="text-sm text-gray-600">
-                Type: {request.original_shift.shift_type}
-              </div>
+        {/* Shift Information */}
+        <div className={`rounded-lg p-4 ${getStatusBgStyle("active")} mb-4`}>
+          <h3 className="text-sm font-medium text-gray-700 mb-2">
+            Shift Information
+          </h3>
+          <div className="space-y-2">
+            <div className="flex items-center text-sm">
+              <Clock className="w-4 h-4 text-gray-400 mr-2" />
+              <span className="font-medium">{scheduleInfo.date}</span>
             </div>
+            <div className="text-sm text-gray-600">{scheduleInfo.time}</div>
           </div>
-
-          {request.type === "TRADE" && request.preferred_shift && (
-            <div className={`rounded-lg p-4 ${getStatusBgStyle("pending")}`}>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">
-                Preferred Shift
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center text-sm">
-                  <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                  <span>{request.preferred_shift.date}</span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  {request.preferred_shift.start_time} -{" "}
-                  {request.preferred_shift.end_time}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Type: {request.preferred_shift.shift_type}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Reason */}
@@ -126,31 +130,6 @@ export const TradeRequestCard = ({
           <div className="text-sm text-gray-500">
             {request.responses.length} response(s)
           </div>
-
-          {onAction && request.status === "OPEN" && (
-            <div className="flex space-x-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAction(request.id, "accept");
-                }}
-                className="flex items-center px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Accept
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAction(request.id, "reject");
-                }}
-                className="flex items-center px-3 py-1.5 border border-red-600 text-red-600 rounded-lg hover:bg-red-50"
-              >
-                <XCircle className="w-4 h-4 mr-1" />
-                Reject
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

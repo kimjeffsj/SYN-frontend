@@ -11,12 +11,18 @@ import { TradeRequestModal } from "../components/TradeRequestModal";
 import { Plus, Search } from "lucide-react";
 import { ShiftTradeRequest } from "../types/shift-trade.type";
 import { TradeDetail } from "../components/TradeDetail";
+import { fetchMySchedules } from "@/features/schedule/slice/scheduleSlice";
 
 export default function ShiftTradePage() {
   const dispatch = useDispatch<AppDispatch>();
   const { requests, isLoading, error } = useSelector(
     (state: RootState) => state.shiftTrade
   );
+  const { schedules } = useSelector((state: RootState) => state.schedule);
+
+  useEffect(() => {
+    dispatch(fetchMySchedules());
+  }, [dispatch]);
 
   // Filter States
   const [filters, setFilters] = useState({
@@ -186,7 +192,7 @@ export default function ShiftTradePage() {
             setShowNewRequestModal(false);
             setSelectedScheduleId(null);
           }}
-          scheduleId={selectedScheduleId}
+          schedules={schedules}
         />
       )}
 

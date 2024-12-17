@@ -11,7 +11,6 @@ export interface UserInfo {
 
 export interface Schedule {
   id: number;
-  date: string;
   start_time: string;
   end_time: string;
   shift_type: string;

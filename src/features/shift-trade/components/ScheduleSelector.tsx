@@ -21,12 +21,16 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
 }) => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  const availableSchedules = schedules.filter(
-    (schedule) =>
-      selectedDate &&
-      format(new Date(schedule.start_time), "yyyy-MM-dd") ===
-        format(selectedDate, "yyyy-MM-dd")
-  );
+  const availableSchedules = schedules.filter((schedule) => {
+    if (!selectedDate || !schedule.start_time) return false;
+
+    const scheduleDate = new Date(schedule.start_time);
+    return (
+      scheduleDate.getFullYear() === selectedDate.getFullYear() &&
+      scheduleDate.getMonth() === selectedDate.getMonth() &&
+      scheduleDate.getDate() === selectedDate.getDate()
+    );
+  });
 
   return (
     <div className="space-y-4">

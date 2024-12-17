@@ -7,6 +7,7 @@ import { createTradeRequest } from "../slice/shiftTradeSlice";
 
 import {
   CreateTradeRequest,
+  Schedule,
   TradeType,
   UrgencyLevel,
 } from "../types/shift-trade.type";
@@ -15,11 +16,16 @@ import { ScheduleSelector } from "./ScheduleSelector";
 interface TradeRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
+  schedules: Schedule[];
 }
 
-export function TradeRequestModal({ isOpen, onClose }: TradeRequestModalProps) {
+export function TradeRequestModal({
+  isOpen,
+  onClose,
+  schedules,
+}: TradeRequestModalProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const { schedules, isLoading, error } = useSelector(
+  const { isLoading, error } = useSelector(
     (state: RootState) => state.schedule
   );
 
@@ -146,10 +152,7 @@ export function TradeRequestModal({ isOpen, onClose }: TradeRequestModalProps) {
             onScheduleSelect={(scheduleId) =>
               setFormData((prev) => ({ ...prev, scheduleId }))
             }
-            schedules={schedules.map((schedule) => ({
-              ...schedule,
-              date: schedule.start_time.split("T")[0],
-            }))}
+            schedules={schedules}
             selectedScheduleId={formData.scheduleId}
           />
         </div>
