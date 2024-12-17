@@ -1,49 +1,67 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// TODO: create mapping function for type warning any
-import { useState } from "react";
+import React, { useState } from "react";
 import { Clock, Calendar, User, CheckCircle, XCircle } from "lucide-react";
 import { Modal } from "@/shared/components/Modal";
-import { ShiftTradeRequest } from "../types/shift-trade.type";
-import { getStatusBgStyle } from "@/shared/utils/status.utils";
+import { Schedule, ShiftTradeRequest } from "../types/shift-trade.type";
+import { getStatusBgStyle, StatusColor } from "@/shared/utils/status.utils";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { ScheduleSelector } from "./ScheduleSelector";
 
 interface TradeDetailProps {
   isOpen: boolean;
   onClose: () => void;
   request: ShiftTradeRequest;
-  onRespond?: (response: {
-    offeredShiftId: number;
-    content: string;
-  }) => Promise<void>;
-  onUpdateStatus?: (
-    responseId: number,
-    status: "ACCEPTED" | "REJECTED"
-  ) => Promise<void>;
+  userSchedules: Schedule[];
+  onRespond?: (scheduleId: number) => Promise<void>;
+  onAcceptResponse?: (responseId: number) => Promise<void>;
+  onRejectResponse?: (responseId: number) => Promise<void>;
+  currentUserId: number;
 }
 
 export function TradeDetail({
   isOpen,
   onClose,
   request,
+  userSchedules,
   onRespond,
-  onUpdateStatus,
+  onAcceptResponse,
+  onRejectResponse,
+  currentUserId,
 }: TradeDetailProps) {
-  const [responseContent, setResponseContent] = useState("");
-  const [selectedShiftId, setSelectedShiftId] = useState<number | null>(null);
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
+    null
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmitResponse = async () => {
-    if (!selectedShiftId) return;
+  const isRequester = currentUserId === request.author.id;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedScheduleId) {
+      setError("Please select a schedule to trade");
+      return;
+    }
 
     try {
-      await onRespond?.({
-        offeredShiftId: selectedShiftId,
-        content: responseContent.trim(),
-      });
-      setResponseContent("");
-      setSelectedShiftId(null);
+      setIsSubmitting(true);
+      setError(null);
+      await onRespond?.(selectedScheduleId);
+      setSelectedScheduleId(null);
+      onClose();
     } catch (error) {
-      console.error("Failed to submit response:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to submit response"
+      );
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -53,7 +71,7 @@ export function TradeDetail({
       title="Shift Trade Request Details"
     >
       <div className="space-y-6">
-        {/* Header section */}
+        {/* Author Info */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
@@ -68,57 +86,41 @@ export function TradeDetail({
           </div>
           <div className="flex items-center space-x-2">
             <StatusBadge
-              status={request.status.toLowerCase() as any}
+              status={request.status.toLowerCase() as StatusColor}
               size="sm"
             />
-            <StatusBadge status={request.type.toLowerCase() as any} size="sm" />
+            <StatusBadge
+              status={request.type.toLowerCase() as StatusColor}
+              size="sm"
+            />
           </div>
         </div>
 
-        {/* Shift Details */}
-        <div className="grid grid-cols-1 gap-4">
-          <div className={`rounded-lg p-4 ${getStatusBgStyle("active")}`}>
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
-              Original Shift
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                <span>{request.original_shift.start_time}</span>
-              </div>
-              <div className="flex items-center">
-                <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                <span>
-                  {request.original_shift.start_time} -{" "}
-                  {request.original_shift.end_time}
-                </span>
-              </div>
+        {/* Original Shift Details */}
+        <div className={`rounded-lg p-4 ${getStatusBgStyle("active")}`}>
+          <h3 className="text-sm font-medium text-gray-700 mb-3">
+            Requested Shift
+          </h3>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+              <span>
+                {new Date(
+                  request.original_shift.start_time
+                ).toLocaleDateString()}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 text-gray-400 mr-2" />
+              <span>
+                {formatTime(request.original_shift.start_time)} -{" "}
+                {formatTime(request.original_shift.end_time)}
+              </span>
             </div>
           </div>
-
-          {request.type === "TRADE" && request.preferred_shift && (
-            <div className={`rounded-lg p-4 ${getStatusBgStyle("pending")}`}>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
-                Preferred Shift
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                  <span>{request.preferred_shift.start_time}</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                  <span>
-                    {request.preferred_shift.start_time} -{" "}
-                    {request.preferred_shift.end_time}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Reason */}
+        {/* Reason if exists */}
         {request.reason && (
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Reason</h3>
@@ -126,70 +128,57 @@ export function TradeDetail({
           </div>
         )}
 
-        {/* Responses */}
-        <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-4">Responses</h3>
-          <div className="space-y-4">
-            {Array.isArray(request.responses) &&
-            request.responses.length > 0 ? (
-              request.responses.map((response) => (
-                <div key={response.id} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <User className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium">
-                          {response.respondent.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {response.created_at}
-                        </p>
-                      </div>
+        {/* Responses List for Requester */}
+        {isRequester && request.responses.length > 0 && (
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">
+              Responses
+            </h3>
+            <div className="space-y-4">
+              {request.responses.map((response) => (
+                <div key={response.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <User className="w-4 h-4 text-gray-400" />
+                      <span className="font-medium">
+                        {response.respondent.name}
+                      </span>
                     </div>
                     <StatusBadge
-                      status={response.status.toLowerCase() as any}
+                      status={response.status.toLowerCase() as StatusColor}
                       size="sm"
                     />
                   </div>
 
-                  <div className="mt-3">
-                    <div
-                      className={`rounded p-3 mb-2 ${getStatusBgStyle(
-                        "active"
-                      )}`}
-                    >
-                      <div className="flex items-center text-sm">
-                        <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                        <span>
-                          {response.offered_shift.start_time} -{" "}
-                          {response.offered_shift.end_time}
-                        </span>
-                      </div>
+                  <div className={`rounded p-3 ${getStatusBgStyle("active")}`}>
+                    <div className="flex items-center mb-2">
+                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                      <span>
+                        {new Date(
+                          response.offered_shift.start_time
+                        ).toLocaleDateString()}
+                      </span>
                     </div>
-                    {response.content && (
-                      <p className="text-sm text-gray-600 mt-2">
-                        {response.content}
-                      </p>
-                    )}
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 text-gray-400 mr-2" />
+                      <span>
+                        {formatTime(response.offered_shift.start_time)} -{" "}
+                        {formatTime(response.offered_shift.end_time)}
+                      </span>
+                    </div>
                   </div>
 
                   {response.status === "PENDING" && (
-                    <div className="mt-3 flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-2 mt-3">
                       <button
-                        onClick={() =>
-                          onUpdateStatus?.(response.id, "ACCEPTED")
-                        }
+                        onClick={() => onAcceptResponse?.(response.id)}
                         className="flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
                         Accept
                       </button>
                       <button
-                        onClick={() =>
-                          onUpdateStatus?.(response.id, "REJECTED")
-                        }
+                        onClick={() => onRejectResponse?.(response.id)}
                         className="flex items-center px-3 py-1.5 text-sm border border-red-600 text-red-600 rounded-lg hover:bg-red-50"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
@@ -198,37 +187,51 @@ export function TradeDetail({
                     </div>
                   )}
                 </div>
-              ))
-            ) : (
-              <div className="text-gray-500 text-center py-4">
-                No responses yet
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Response Form for Non-requesters */}
+        {!isRequester && request.status === "OPEN" && (
+          <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t">
+            <h3 className="text-sm font-medium text-gray-700">
+              Select Your Schedule to Trade
+            </h3>
+
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+                {error}
               </div>
             )}
-          </div>
-        </div>
 
-        {/* New Response Form */}
-        {request.status === "OPEN" && (
-          <div className="pt-6 border-t">
-            <h3 className="text-sm font-medium text-gray-700 mb-4">
-              Add Response
-            </h3>
-            {/* TODO: Add shift selector */}
-            <textarea
-              value={responseContent}
-              onChange={(e) => setResponseContent(e.target.value)}
-              placeholder="Add your message..."
-              className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              rows={3}
+            <ScheduleSelector
+              selectedDate={null}
+              onDateChange={() => {}}
+              onScheduleSelect={setSelectedScheduleId}
+              schedules={userSchedules}
+              selectedScheduleId={selectedScheduleId}
+              mode="response"
             />
-            <button
-              onClick={handleSubmitResponse}
-              disabled={!selectedShiftId}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
-            >
-              Submit Response
-            </button>
-          </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !selectedScheduleId}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isSubmitting ? "Submitting..." : "Submit Response"}
+              </button>
+            </div>
+          </form>
         )}
       </div>
     </Modal>

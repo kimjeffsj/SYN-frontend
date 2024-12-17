@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Schedule } from "../types/shift-trade.type";
 import { format } from "date-fns";
-import { Calendar, ChevronDown } from "lucide-react";
+import { Calendar, ChevronDown, Clock } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { StatusColor } from "@/shared/utils/status.utils";
 
 interface ScheduleSelectorProps {
   selectedDate: Date | null;
@@ -10,108 +11,143 @@ interface ScheduleSelectorProps {
   onScheduleSelect: (scheduleId: number) => void;
   schedules: Schedule[];
   selectedScheduleId: number | null;
+  mode?: "default" | "response";
 }
 
 export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
   selectedDate,
   onDateChange,
   onScheduleSelect,
-  schedules,
+  schedules = [],
   selectedScheduleId,
+  mode = "default",
 }) => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  const availableSchedules = schedules.filter((schedule) => {
-    if (!selectedDate || !schedule.start_time) return false;
+  const formatTime = (dateString: string) => {
+    return format(new Date(dateString), "HH:mm");
+  };
 
-    const scheduleDate = new Date(schedule.start_time);
+  const getAvailableSchedules = () => {
+    if (!Array.isArray(schedules)) return [];
+
+    if (!selectedDate) return schedules;
+
+    return schedules.filter((schedule) => {
+      if (!schedule?.start_time) return false;
+
+      const scheduleDate = new Date(schedule.start_time);
+      return (
+        scheduleDate.getFullYear() === selectedDate.getFullYear() &&
+        scheduleDate.getMonth() === selectedDate.getMonth() &&
+        scheduleDate.getDate() === selectedDate.getDate()
+      );
+    });
+  };
+
+  const renderScheduleList = () => {
+    const availableSchedules = getAvailableSchedules();
+
+    if (availableSchedules.length === 0) {
+      return (
+        <div className="text-center text-gray-500 p-4 bg-gray-50 rounded-lg">
+          No schedules available
+        </div>
+      );
+    }
+
     return (
-      scheduleDate.getFullYear() === selectedDate.getFullYear() &&
-      scheduleDate.getMonth() === selectedDate.getMonth() &&
-      scheduleDate.getDate() === selectedDate.getDate()
+      <div className="space-y-2 max-h-60 overflow-y-auto">
+        {availableSchedules.map((schedule) => (
+          <button
+            key={schedule.id}
+            type="button"
+            onClick={() => onScheduleSelect(schedule.id)}
+            className={`w-full p-3 border rounded-lg text-left transition-colors
+              ${
+                selectedScheduleId === schedule.id
+                  ? "border-primary bg-primary/5"
+                  : "hover:bg-gray-50"
+              }`}
+          >
+            <div className="flex justify-between items-center">
+              <div className="space-y-1">
+                <div className="flex items-center">
+                  <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                  <span className="font-medium">
+                    {format(new Date(schedule.start_time), "MMM d, yyyy")}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <Clock className="w-4 h-4 text-gray-400 mr-2" />
+                  <span>
+                    {formatTime(schedule.start_time)} -{" "}
+                    {formatTime(schedule.end_time)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusBadge
+                  status={schedule.shift_type.toLowerCase() as StatusColor}
+                  size="sm"
+                />
+                <StatusBadge
+                  status={schedule.status.toLowerCase() as StatusColor}
+                  size="sm"
+                />
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
     );
-  });
+  };
 
   return (
     <div className="space-y-4">
-      <button
-        type="button"
-        onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-        className="flex items-center justify-between w-full px-4 py-2 border rounded-lg hover:bg-gray-50"
-      >
-        <div className="flex items-center">
-          <Calendar className="w-4 h-4 mr-2" />
-          <span>
-            {selectedDate ? format(selectedDate, "PPP") : "Select date"}
-          </span>
-        </div>
-        <ChevronDown className="w-4 h-4" />
-      </button>
-
-      {/* Calendar Dropdown */}
-      {isCalendarOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg">
-          {/* Replace with your preferred calendar component */}
-          <div className="p-4">
-            <input
-              type="date"
-              value={selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""}
-              onChange={(e) => {
-                onDateChange(new Date(e.target.value));
-                setIsCalendarOpen(false);
-              }}
-              className="w-full border rounded-lg p-2"
-            />
+      {/* Calendar Selection */}
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+          className="w-full flex items-center justify-between px-4 py-2 border rounded-lg hover:bg-gray-50"
+        >
+          <div className="flex items-center">
+            <Calendar className="w-4 h-4 mr-2" />
+            <span>
+              {selectedDate ? format(selectedDate, "PPP") : "Select date"}
+            </span>
           </div>
-        </div>
-      )}
+          <ChevronDown className="w-4 h-4" />
+        </button>
 
-      {/* Available Schedules */}
-      {selectedDate && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-700">
-            Available Schedules
-          </h3>
-          {availableSchedules.length > 0 ? (
-            <div className="space-y-2">
-              {availableSchedules.map((schedule) => (
-                <button
-                  key={schedule.id}
-                  type="button"
-                  onClick={() => onScheduleSelect(schedule.id)}
-                  className={`w-full p-3 border rounded-lg text-left transition-colors ${
-                    selectedScheduleId === schedule.id
-                      ? "border-primary bg-primary/5"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">
-                        {format(new Date(schedule.start_time), "HH:mm")} -{" "}
-                        {format(new Date(schedule.end_time), "HH:mm")}
-                      </p>
-                      <p className="text-sm text-gray-500 capitalize">
-                        {schedule.shift_type}
-                      </p>
-                    </div>
-                    <StatusBadge
-                      //TODO: Fix type
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      status={schedule.status.toLowerCase() as any}
-                      size="sm"
-                    />
-                  </div>
-                </button>
-              ))}
+        {isCalendarOpen && (
+          <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg">
+            <div className="p-4">
+              <input
+                type="date"
+                value={selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""}
+                onChange={(e) => {
+                  const date = new Date(e.target.value);
+                  onDateChange(date);
+                  setIsCalendarOpen(false);
+                }}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
+              />
             </div>
-          ) : (
-            <p className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
-              No schedules available for this date
-            </p>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
+
+      {/* Schedule List */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-700 mb-2">
+          {mode === "response"
+            ? "Select Schedule to Trade"
+            : "Available Schedules"}
+        </h3>
+        {renderScheduleList()}
+      </div>
     </div>
   );
 };
