@@ -49,6 +49,7 @@ export const fetchTradeRequests = createAsyncThunk(
   }
 );
 
+// Get single Request
 export const fetchTradeRequest = createAsyncThunk(
   "shiftTrade/fetchRequest",
   async (id: number, { getState, rejectWithValue }) => {

@@ -18,11 +18,23 @@ export const shiftTradeApi = {
       search?: string;
     }
   ) => {
-    const response = await axios.get<ShiftTradeRequest[]>(`${API_URL}/trades`, {
-      headers: { Authorization: `Bearer ${token}` },
-      params,
-    });
-    return response.data;
+    try {
+      const response = await axios.get<ShiftTradeRequest[]>(
+        `${API_URL}/trades`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params,
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   },
 
   // Get a trade request

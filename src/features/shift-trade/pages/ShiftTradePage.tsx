@@ -66,12 +66,21 @@ export default function ShiftTradePage() {
           data: {
             trade_request_id: selectedRequest.id,
             offered_shift_id: scheduleId,
-            content: "", // Add default content or modify component to accept content
+            content: "",
           },
         })
       ).unwrap();
+
+      dispatch(fetchTradeRequests({}));
+      setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to respond to trade request: ", error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to respond to trade request"
+      );
     }
   };
 
