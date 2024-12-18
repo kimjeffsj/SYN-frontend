@@ -109,7 +109,6 @@ export default function ShiftTradePage() {
 
   const handleDeleteRequest = async (requestId: number) => {
     try {
-      // TODO: Implement delete trade request
       await dispatch(cancelTradeRequest(requestId)).unwrap();
       toast.success("Trade request deleted successfully");
       setSelectedRequest(null);
