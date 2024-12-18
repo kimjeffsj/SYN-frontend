@@ -1,18 +1,16 @@
 import { Menu } from "lucide-react";
 import { Avatar } from "../Avatar";
 import NotificationCenter from "@/features/notifications/components/\bNotificationCenter";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 
 interface HeaderProps {
   userRole: "admin" | "employee";
   onMenuClick: () => void;
-  userName?: string;
 }
+export const Header: React.FC<HeaderProps> = ({ userRole, onMenuClick }) => {
+  const { user } = useSelector((state: RootState) => state.auth);
 
-export function Header({
-  userRole,
-  onMenuClick,
-  userName = "User Name",
-}: HeaderProps) {
   return (
     <header className="bg-white border-b sticky top-0 z-30">
       <div className="flex items-center justify-between px-6 py-4">
@@ -32,9 +30,9 @@ export function Header({
           <NotificationCenter />
 
           <div className="flex items-center">
-            <Avatar name={userName} size="sm" />
+            <Avatar name={user?.full_name || "User"} size="sm" />
             <div className="ml-3">
-              <p className="text-sm font-medium">{userName}</p>
+              <p className="text-sm font-medium">{user?.full_name}</p>
               <p className="text-xs text-gray-500 capitalize">{userRole}</p>
             </div>
           </div>
@@ -42,4 +40,4 @@ export function Header({
       </div>
     </header>
   );
-}
+};

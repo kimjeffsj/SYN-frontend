@@ -18,11 +18,23 @@ export const shiftTradeApi = {
       search?: string;
     }
   ) => {
-    const response = await axios.get<ShiftTradeRequest[]>(`${API_URL}/trades`, {
-      headers: { Authorization: `Bearer ${token}` },
-      params,
-    });
-    return response.data;
+    try {
+      const response = await axios.get<ShiftTradeRequest[]>(
+        `${API_URL}/trades`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params,
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   },
 
   // Get a trade request
@@ -53,12 +65,15 @@ export const shiftTradeApi = {
     token: string,
     tradeId: number,
     data: CreateTradeResponse
-  ) => {
+  ): Promise<ShiftTradeResponse> => {
     const response = await axios.post<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses`,
       data,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
     return response.data;
@@ -81,11 +96,11 @@ export const shiftTradeApi = {
     return response.data;
   },
 
-  // Cancel Trade request
+  // cancel Trade request
   cancelTradeRequest: async (token: string, tradeId: number) => {
-    await axios.patch(
+    await axios.delete(
       `${API_URL}/trades/${tradeId}/cancel`,
-      {},
+
       {
         headers: { Authorization: `Bearer ${token}` },
       }

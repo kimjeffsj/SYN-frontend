@@ -38,7 +38,7 @@ export function TradeRequestModal({
     type: "TRADE",
     scheduleId: null,
     reason: "",
-    urgency: "medium",
+    urgency: "normal",
   });
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -75,7 +75,7 @@ export function TradeRequestModal({
         type: "TRADE",
         scheduleId: null,
         reason: "",
-        urgency: "medium",
+        urgency: "normal",
       });
       setSelectedDate(null);
     } catch (err) {
@@ -148,7 +148,10 @@ export function TradeRequestModal({
           </label>
           <ScheduleSelector
             selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
+            onDateChange={(date: Date) => {
+              console.log("Date changed:", date); // 디버깅
+              setSelectedDate(date);
+            }}
             onScheduleSelect={(scheduleId) =>
               setFormData((prev) => ({ ...prev, scheduleId }))
             }
@@ -163,7 +166,7 @@ export function TradeRequestModal({
             Urgency Level
           </label>
           <div className="flex gap-4">
-            {(["low", "medium", "high"] as const).map((level) => (
+            {(["normal", "high"] as const).map((level) => (
               <button
                 key={level}
                 type="button"
@@ -174,7 +177,7 @@ export function TradeRequestModal({
                   formData.urgency === level
                     ? level === "high"
                       ? "bg-red-100 text-red-800 border-red-200"
-                      : level === "medium"
+                      : level === "normal"
                       ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                       : "bg-green-100 text-green-800 border-green-200"
                     : "bg-white hover:bg-gray-50"
@@ -196,7 +199,7 @@ export function TradeRequestModal({
           </label>
           <textarea
             id="reason"
-            rows={4}
+            rows={2}
             className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary/20 focus:border-primary"
             placeholder="Please provide a reason for your request..."
             value={formData.reason}

@@ -12,10 +12,9 @@ interface CreateScheduleFormProps {
 }
 
 const shiftTypes: { value: ShiftType; label: string }[] = [
-  { value: "morning", label: "Morning (08:00-16:00)" },
-  { value: "afternoon", label: "Afternoon (12:00-20:00)" },
-  { value: "evening", label: "Evening (17:00-22:00)" },
-  { value: "full_day", label: "Full Day (08:00-18:00)" },
+  { value: "morning", label: "Morning (07:00-15:00)" },
+  { value: "afternoon", label: "Afternoon (11:00-19:00)" },
+  { value: "evening", label: "Evening (17:00-23:00)" },
 ];
 
 export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
@@ -59,10 +58,9 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
     shiftType: ShiftType
   ): { start: string; end: string } => {
     const times = {
-      morning: { start: "08:00", end: "16:00" },
-      afternoon: { start: "12:00", end: "20:00" },
-      evening: { start: "17:00", end: "22:00" },
-      full_day: { start: "08:00", end: "18:00" },
+      morning: { start: "07:00", end: "15:00" },
+      afternoon: { start: "11:00", end: "19:00" },
+      evening: { start: "17:00", end: "23:00" },
     };
     return times[shiftType];
   };

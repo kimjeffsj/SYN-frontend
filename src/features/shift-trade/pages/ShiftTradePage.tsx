@@ -2,6 +2,7 @@ import { AppDispatch, RootState } from "@/app/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  cancelTradeRequest,
   createTradeResponse,
   fetchTradeRequests,
   updateResponseStatus,
@@ -12,6 +13,7 @@ import { Plus, Search } from "lucide-react";
 import { ShiftTradeRequest } from "../types/shift-trade.type";
 import { TradeDetail } from "../components/TradeDetail";
 import { fetchMySchedules } from "@/features/schedule/slice/scheduleSlice";
+import { toast } from "react-toastify";
 
 export default function ShiftTradePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,6 +21,7 @@ export default function ShiftTradePage() {
     (state: RootState) => state.shiftTrade
   );
   const { schedules } = useSelector((state: RootState) => state.schedule);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     dispatch(fetchMySchedules());
@@ -55,10 +58,7 @@ export default function ShiftTradePage() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleRespond = async (responseData: {
-    offeredShiftId: number;
-    content: string;
-  }) => {
+  const handleRespond = async (scheduleId: number) => {
     if (!selectedRequest) return;
 
     try {
@@ -67,13 +67,22 @@ export default function ShiftTradePage() {
           tradeId: selectedRequest.id,
           data: {
             trade_request_id: selectedRequest.id,
-            offered_shift_id: responseData.offeredShiftId,
-            content: responseData.content,
+            offered_shift_id: scheduleId,
+            content: "",
           },
         })
       ).unwrap();
+
+      await dispatch(fetchTradeRequests({}));
+      setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to respond to trade request: ", error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to respond to trade request"
+      );
     }
   };
 
@@ -95,6 +104,17 @@ export default function ShiftTradePage() {
       dispatch(fetchTradeRequests({}));
     } catch (error) {
       console.error("Failed to update response status: ", error);
+    }
+  };
+
+  const handleDeleteRequest = async (requestId: number) => {
+    try {
+      await dispatch(cancelTradeRequest(requestId)).unwrap();
+      toast.success("Trade request deleted successfully");
+      setSelectedRequest(null);
+    } catch (error) {
+      console.error("Failed to delete trade request: ", error);
+      toast.error("Failed to delete trade request");
     }
   };
 
@@ -195,7 +215,6 @@ export default function ShiftTradePage() {
           schedules={schedules}
         />
       )}
-
       {/* Trade Detail Modal */}
       {selectedRequest && (
         <TradeDetail
@@ -204,6 +223,9 @@ export default function ShiftTradePage() {
           request={selectedRequest}
           onRespond={handleRespond}
           onUpdateStatus={handleUpdateResponseStatus}
+          userSchedules={schedules}
+          currentUserId={user?.id || 0}
+          onDelete={handleDeleteRequest}
         />
       )}
     </div>

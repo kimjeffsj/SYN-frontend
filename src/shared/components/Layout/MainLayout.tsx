@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -17,7 +19,14 @@ export function MainLayout({ children, userRole }: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header userRole={userRole} onMenuClick={toggleSidebar} />
-
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={true}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
       <div className="flex">
         <Sidebar
           userRole={userRole}
