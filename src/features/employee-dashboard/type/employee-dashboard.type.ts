@@ -5,7 +5,7 @@ export interface Employee {
   department: string;
 }
 
-export type ShiftType = "morning" | "afternoon" | "evening" | "full_day";
+export type ShiftType = "morning" | "afternoon" | "evening";
 export type ScheduleStatus =
   | "pending"
   | "confirmed"

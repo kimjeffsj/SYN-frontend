@@ -1,6 +1,6 @@
 export type TradeType = "TRADE" | "GIVEAWAY";
 export type TradeStatus = "OPEN" | "PENDING" | "COMPLETED";
-export type UrgencyLevel = "high" | "medium" | "low";
+export type UrgencyLevel = "high" | "normal";
 
 export interface UserInfo {
   id: number;

@@ -17,7 +17,6 @@ export const ScheduleOverview: React.FC<ScheduleOverviewProps> = ({
       morning: "bg-blue-100 text-blue-800",
       afternoon: "bg-yellow-100 text-yellow-800",
       evening: "bg-purple-100 text-purple-800",
-      full_day: "bg-green-100 text-green-800",
     };
     return colors[type as keyof typeof colors] || colors.morning;
   };

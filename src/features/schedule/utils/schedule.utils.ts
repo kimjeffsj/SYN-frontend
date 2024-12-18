@@ -5,7 +5,6 @@ export const getShiftTypeStyle = (type: ShiftType): string => {
     morning: "bg-blue-100 text-blue-800",
     afternoon: "bg-purple-100 text-purple-800",
     evening: "bg-indigo-100 text-indigo-800",
-    full_day: "bg-green-100 text-green-800",
   };
   return styles[type];
 };
