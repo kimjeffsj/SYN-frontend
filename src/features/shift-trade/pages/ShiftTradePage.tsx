@@ -2,6 +2,7 @@ import { AppDispatch, RootState } from "@/app/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  cancelTradeRequest,
   createTradeResponse,
   fetchTradeRequests,
   updateResponseStatus,
@@ -12,6 +13,7 @@ import { Plus, Search } from "lucide-react";
 import { ShiftTradeRequest } from "../types/shift-trade.type";
 import { TradeDetail } from "../components/TradeDetail";
 import { fetchMySchedules } from "@/features/schedule/slice/scheduleSlice";
+import { toast } from "react-toastify";
 
 export default function ShiftTradePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -108,10 +110,12 @@ export default function ShiftTradePage() {
   const handleDeleteRequest = async (requestId: number) => {
     try {
       // TODO: Implement delete trade request
-      // await dispatch(deleteTradeRequest(requestId)).unwrap();
+      await dispatch(cancelTradeRequest(requestId)).unwrap();
+      toast.success("Trade request deleted successfully");
       setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to delete trade request: ", error);
+      toast.error("Failed to delete trade request");
     }
   };
 

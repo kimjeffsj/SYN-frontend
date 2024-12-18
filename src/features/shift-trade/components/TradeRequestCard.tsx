@@ -30,6 +30,7 @@ export const TradeRequestCard = ({
 
   const formatScheduleDateTime = (schedule: Schedule) => {
     if (!schedule || !schedule.start_time || !schedule.end_time) {
+      console.log("Invalid schedule data:", schedule);
       return {
         date: "N/A",
         time: "N/A",
@@ -46,6 +47,7 @@ export const TradeRequestCard = ({
       };
     } catch (error) {
       console.error("Date formatting error: ", error);
+
       return {
         date: "Invalid date",
         time: "Invalid time",

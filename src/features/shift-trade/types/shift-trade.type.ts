@@ -36,12 +36,15 @@ export interface ShiftTradeRequest {
 
 export interface ShiftTradeResponse {
   id: number;
-  trade_request_id: number;
   respondent: UserInfo;
-  offered_shift_id: number;
-  offered_shift: Schedule;
-  content: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  trade_request_id: number;
+  offered_shift: {
+    start_time: string;
+    end_time: string;
+    shift_type: string;
+  };
+  content?: string;
+  status: string;
   created_at: string;
 }
 

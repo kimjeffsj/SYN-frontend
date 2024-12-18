@@ -153,6 +153,26 @@ export const updateResponseStatus = createAsyncThunk(
   }
 );
 
+export const cancelTradeRequest = createAsyncThunk(
+  "shiftTrade/cancelRequest",
+  async (tradeId: number, { getState, rejectWithValue }) => {
+    try {
+      const token = (getState() as RootState).auth.accessToken;
+      if (!token) throw new Error("No access token");
+
+      await shiftTradeApi.cancelTradeRequest(token, tradeId);
+      return tradeId;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(
+          error.response?.data?.detail || "Failed to cancel request"
+        );
+      }
+      return rejectWithValue("An unexpected error occurred");
+    }
+  }
+);
+
 const shiftTradeSlice = createSlice({
   name: "shiftTrade",
   initialState,
@@ -247,6 +267,9 @@ const shiftTradeSlice = createSlice({
             state.selectedRequest.responses[responseIndex] = response;
           }
         }
+      })
+      .addCase(cancelTradeRequest.fulfilled, (state, action) => {
+        state.requests = state.requests.filter((r) => r.id !== action.payload);
       });
   },
 });

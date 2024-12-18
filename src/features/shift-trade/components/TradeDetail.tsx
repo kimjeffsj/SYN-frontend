@@ -1,18 +1,13 @@
 import React, { useState } from "react";
-import {
-  Clock,
-  Calendar,
-  User,
-  CheckCircle,
-  XCircle,
-  Trash2,
-} from "lucide-react";
+import { Clock, Calendar, User, Trash2 } from "lucide-react";
 import { Modal } from "@/shared/components/Modal";
 import { Schedule, ShiftTradeRequest } from "../types/shift-trade.type";
 import { getStatusBgStyle, StatusColor } from "@/shared/utils/status.utils";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { ScheduleSelector } from "./ScheduleSelector";
 import { toast } from "react-toastify";
+import TradeResponseList from "./TradeResponseList";
+import { formatTime } from "@/features/schedule/\butils/schedule.utils";
 
 interface TradeDetailProps {
   isOpen: boolean;
@@ -76,25 +71,30 @@ export function TradeDetail({
     }
   };
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const handleAccept = async (responseId: number) => {
+    try {
+      setIsSubmitting(true);
+      await onAcceptResponse?.(responseId);
+      toast.success("Response accepted successfully!");
+    } catch (error) {
+      toast.error("Failed to accept response");
+      console.error("Error accepting response:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const renderHeaderActions = () => {
-    if (!isRequester) return null;
-
-    return (
-      <button
-        onClick={() => onDelete?.(request.id)}
-        className="flex items-center px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
-      >
-        <Trash2 className="w-4 h-4 mr-1" />
-        Delete Request
-      </button>
-    );
+  const handleReject = async (responseId: number) => {
+    try {
+      setIsSubmitting(true);
+      await onRejectResponse?.(responseId);
+      toast.success("Response rejected successfully!");
+    } catch (error) {
+      toast.error("Failed to reject response");
+      console.error("Error rejecting response:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -117,7 +117,15 @@ export function TradeDetail({
               </div>
             </div>
           </div>
-          {renderHeaderActions()}
+          {isRequester && (
+            <button
+              onClick={() => onDelete?.(request.id)}
+              className="flex items-center px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Delete Request
+            </button>
+          )}
           <div className="flex items-center space-x-2">
             <StatusBadge
               status={request.status.toLowerCase() as StatusColor}
@@ -138,11 +146,7 @@ export function TradeDetail({
           <div className="space-y-2">
             <div className="flex items-center">
               <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-              <span>
-                {new Date(
-                  request.original_shift.start_time
-                ).toLocaleDateString()}
-              </span>
+              <span>{formatTime(request.original_shift.start_time)}</span>
             </div>
             <div className="flex items-center">
               <Clock className="w-4 h-4 text-gray-400 mr-2" />
@@ -162,67 +166,17 @@ export function TradeDetail({
           </div>
         )}
 
-        {/* Responses List for Requester */}
-        {isRequester && request.responses.length > 0 && (
+        {/* Responses Section */}
+        {isRequester && (
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
-              Responses
-            </h3>
-            <div className="space-y-4">
-              {request.responses.map((response) => (
-                <div key={response.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-gray-400" />
-                      <span className="font-medium">
-                        {response.respondent.name}
-                      </span>
-                    </div>
-                    <StatusBadge
-                      status={response.status.toLowerCase() as StatusColor}
-                      size="sm"
-                    />
-                  </div>
-
-                  <div className={`rounded p-3 ${getStatusBgStyle("active")}`}>
-                    <div className="flex items-center mb-2">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                      <span>
-                        {new Date(
-                          response.offered_shift.start_time
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                      <span>
-                        {formatTime(response.offered_shift.start_time)} -{" "}
-                        {formatTime(response.offered_shift.end_time)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {response.status === "PENDING" && (
-                    <div className="flex justify-end space-x-2 mt-3">
-                      <button
-                        onClick={() => onAcceptResponse?.(response.id)}
-                        className="flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => onRejectResponse?.(response.id)}
-                        className="flex items-center px-3 py-1.5 text-sm border border-red-600 text-red-600 rounded-lg hover:bg-red-50"
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <h3 className="text-lg font-semibold mb-4">Responses</h3>
+            <TradeResponseList
+              responses={request.responses}
+              isRequester={isRequester}
+              onAcceptResponse={handleAccept}
+              onRejectResponse={handleReject}
+              isSubmitting={isSubmitting}
+            />
           </div>
         )}
 
@@ -244,9 +198,7 @@ export function TradeDetail({
               onScheduleSelect={setSelectedScheduleId}
               schedules={userSchedules}
               selectedDate={selectedDate}
-              onDateChange={(date) => {
-                setSelectedDate(date);
-              }}
+              onDateChange={setSelectedDate}
               mode="response"
             />
 

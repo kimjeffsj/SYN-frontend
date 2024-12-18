@@ -96,11 +96,11 @@ export const shiftTradeApi = {
     return response.data;
   },
 
-  // Cancel Trade request
+  // cancel Trade request
   cancelTradeRequest: async (token: string, tradeId: number) => {
-    await axios.patch(
+    await axios.delete(
       `${API_URL}/trades/${tradeId}/cancel`,
-      {},
+
       {
         headers: { Authorization: `Bearer ${token}` },
       }
