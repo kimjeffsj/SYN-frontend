@@ -2,6 +2,7 @@ import { AppDispatch, RootState } from "@/app/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  acceptGiveaway,
   cancelTradeRequest,
   createTradeResponse,
   fetchTradeRequests,
@@ -62,23 +63,27 @@ export default function ShiftTradePage() {
     if (!selectedRequest) return;
 
     try {
-      await dispatch(
-        createTradeResponse({
-          tradeId: selectedRequest.id,
-          data: {
-            trade_request_id: selectedRequest.id,
-            offered_shift_id: scheduleId,
-            content: "",
-          },
-        })
-      ).unwrap();
+      if (selectedRequest.type === "GIVEAWAY") {
+        await dispatch(acceptGiveaway(selectedRequest.id)).unwrap();
+        toast.success("Successfully accepted giveaway shift!");
+      } else {
+        await dispatch(
+          createTradeResponse({
+            tradeId: selectedRequest.id,
+            data: {
+              trade_request_id: selectedRequest.id,
+              offered_shift_id: scheduleId,
+            },
+          })
+        ).unwrap();
+        toast.success("Successfully submitted trade response!");
+      }
 
       await dispatch(fetchTradeRequests({}));
       setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to respond to trade request: ", error);
-
-      alert(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Failed to respond to trade request"

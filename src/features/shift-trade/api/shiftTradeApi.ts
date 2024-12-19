@@ -100,6 +100,18 @@ export const shiftTradeApi = {
     return response.data;
   },
 
+  // Giveaway Accept
+  acceptGiveaway: async (token: string, tradeId: number) => {
+    const response = await axios.post<ShiftTradeResponse>(
+      `${API_URL}/trades/${tradeId}/accept-giveaway`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+  },
+
   // cancel Trade request
   cancelTradeRequest: async (token: string, tradeId: number) => {
     await axios.delete(
@@ -109,6 +121,20 @@ export const shiftTradeApi = {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+  },
+
+  // checkAvailability
+  checkAvailability: async (token: string, tradeId: number) => {
+    const response = await axios.get<{ is_available: boolean }>(
+      `${API_URL}/trades/${tradeId}/check-availability`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
   },
 
   setupInterceptors: () => {

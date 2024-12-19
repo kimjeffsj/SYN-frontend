@@ -22,8 +22,7 @@ export const TradeRequestCard = ({
   const getUrgencyStyle = (urgency: UrgencyLevel) => {
     const styles = {
       high: "bg-red-50 text-red-600 border-red-100",
-      medium: "bg-yellow-50 text-yellow-600 border-yellow-100",
-      low: "bg-blue-50 text-blue-600 border-blue-100",
+      normal: "bg-yellow-50 text-yellow-600 border-yellow-100",
     };
     return styles[urgency];
   };
