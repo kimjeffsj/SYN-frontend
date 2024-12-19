@@ -82,9 +82,13 @@ export function TradeDetail({
     try {
       setIsSubmitting(true);
       await onAcceptResponse?.(responseId);
+      console.log("Accept response successful");
+
       toast.success("Response accepted successfully!");
     } catch (error) {
       toast.error("Failed to accept response");
+      console.error("Error accepting response:", error);
+
       console.error("Error accepting response:", error);
     } finally {
       setIsSubmitting(false);

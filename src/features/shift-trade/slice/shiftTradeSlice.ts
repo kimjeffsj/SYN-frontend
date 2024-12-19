@@ -131,6 +131,12 @@ export const updateResponseStatus = createAsyncThunk(
     },
     { getState, rejectWithValue }
   ) => {
+    console.log("updateResponseStatus thunk called:", {
+      tradeId,
+      responseId,
+      status,
+    });
+
     try {
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
@@ -141,6 +147,8 @@ export const updateResponseStatus = createAsyncThunk(
         responseId,
         status
       );
+      console.log("API call successful:", response);
+
       return { tradeId, response };
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -250,21 +258,20 @@ const shiftTradeSlice = createSlice({
       // Update response status
       .addCase(updateResponseStatus.fulfilled, (state, action) => {
         const { tradeId, response } = action.payload;
-        const request = state.requests.find((r) => r.id === tradeId);
-        if (request) {
-          const responseIndex = request.responses.findIndex(
-            (r) => r.id === response.id
-          );
-          if (responseIndex !== -1) {
-            request.responses[responseIndex] = response;
+        if (response.status === "ACCEPTED") {
+          state.requests = state.requests.filter((r) => r.id !== tradeId);
+          if (state.selectedRequest?.id === tradeId) {
+            state.selectedRequest = null;
           }
-        }
-        if (state.selectedRequest?.id === tradeId) {
-          const responseIndex = state.selectedRequest.responses.findIndex(
-            (r) => r.id === response.id
-          );
-          if (responseIndex !== -1) {
-            state.selectedRequest.responses[responseIndex] = response;
+        } else {
+          const request = state.requests.find((r) => r.id === tradeId);
+          if (request) {
+            const responseIndex = request.responses.findIndex(
+              (r) => r.id === response.id
+            );
+            if (responseIndex !== -1) {
+              request.responses[responseIndex] = response;
+            }
           }
         }
       })

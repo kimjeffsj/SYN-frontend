@@ -90,16 +90,25 @@ export default function ShiftTradePage() {
     responseId: number,
     status: "ACCEPTED" | "REJECTED"
   ) => {
-    if (!selectedRequest) return;
+    console.log("ShiftTradePage - handleUpdateResponseStatus", {
+      responseId,
+      status,
+    });
+
+    if (!selectedRequest) {
+      console.log("No selected request");
+      return;
+    }
 
     try {
-      await dispatch(
+      const result = await dispatch(
         updateResponseStatus({
           tradeId: selectedRequest.id,
           responseId,
           status,
         })
       ).unwrap();
+      console.log("Status update dispatch result:", result);
 
       await dispatch(fetchTradeRequests({}));
     } catch (error) {
@@ -226,6 +235,12 @@ export default function ShiftTradePage() {
           userSchedules={schedules}
           currentUserId={user?.id || 0}
           onDelete={handleDeleteRequest}
+          onAcceptResponse={(responseId) =>
+            handleUpdateResponseStatus(responseId, "ACCEPTED")
+          }
+          onRejectResponse={(responseId) =>
+            handleUpdateResponseStatus(responseId, "REJECTED")
+          }
         />
       )}
     </div>

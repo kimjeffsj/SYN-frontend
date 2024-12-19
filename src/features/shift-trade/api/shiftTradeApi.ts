@@ -86,6 +86,8 @@ export const shiftTradeApi = {
     responseId: number,
     status: "ACCEPTED" | "REJECTED" | "PENDING"
   ) => {
+    console.log("API Call Parameters:", { token, tradeId, responseId, status });
+
     const response = await axios.patch<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses/${responseId}/status`,
       { status },
@@ -93,6 +95,8 @@ export const shiftTradeApi = {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    console.log("API Response:", response.data);
+
     return response.data;
   },
 
