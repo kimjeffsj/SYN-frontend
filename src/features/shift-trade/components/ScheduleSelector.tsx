@@ -31,13 +31,19 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
   const getAvailableSchedules = () => {
     if (!Array.isArray(schedules)) return [];
 
-    if (!selectedDate) return schedules;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    return schedules.filter((schedule) => {
+    const filteredSchedules = schedules.filter((schedule) => {
       if (!schedule?.start_time) return false;
-
       const scheduleDate = new Date(schedule.start_time);
+      return scheduleDate >= today;
+    });
 
+    if (!selectedDate) return filteredSchedules;
+
+    return filteredSchedules.filter((schedule) => {
+      const scheduleDate = new Date(schedule.start_time);
       return (
         scheduleDate.getFullYear() === selectedDate.getFullYear() &&
         scheduleDate.getMonth() === selectedDate.getMonth() &&
@@ -45,6 +51,8 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
       );
     });
   };
+
+  const minDate = new Date().toISOString().split("T")[0];
 
   const renderScheduleList = () => {
     const availableSchedules = getAvailableSchedules();
@@ -127,6 +135,7 @@ export const ScheduleSelector: React.FC<ScheduleSelectorProps> = ({
             <div className="p-4">
               <input
                 type="date"
+                min={minDate}
                 value={selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""}
                 onChange={(e) => {
                   const date = parseISO(e.target.value);

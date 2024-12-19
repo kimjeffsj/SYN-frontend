@@ -45,6 +45,13 @@ export function TradeDetail({
 
   const isRequester = currentUserId === request.author.id;
 
+  const validUserSchedules = userSchedules.filter((schedule) => {
+    const scheduleDate = new Date(schedule.start_time);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return scheduleDate >= today;
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedScheduleId) {
@@ -196,7 +203,7 @@ export function TradeDetail({
             <ScheduleSelector
               selectedScheduleId={selectedScheduleId}
               onScheduleSelect={setSelectedScheduleId}
-              schedules={userSchedules}
+              schedules={validUserSchedules}
               selectedDate={selectedDate}
               onDateChange={setSelectedDate}
               mode="response"
