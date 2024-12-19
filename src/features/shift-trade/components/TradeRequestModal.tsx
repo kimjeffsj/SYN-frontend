@@ -45,6 +45,13 @@ export function TradeRequestModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const validSchedules = schedules.filter((schedule) => {
+    const scheduleDate = new Date(schedule.start_time);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return scheduleDate >= today;
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
@@ -148,14 +155,11 @@ export function TradeRequestModal({
           </label>
           <ScheduleSelector
             selectedDate={selectedDate}
-            onDateChange={(date: Date) => {
-              console.log("Date changed:", date); // 디버깅
-              setSelectedDate(date);
-            }}
+            onDateChange={setSelectedDate}
             onScheduleSelect={(scheduleId) =>
               setFormData((prev) => ({ ...prev, scheduleId }))
             }
-            schedules={schedules}
+            schedules={validSchedules}
             selectedScheduleId={formData.scheduleId}
           />
         </div>

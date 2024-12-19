@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { ShiftType } from "../types/schedule.type";
 
 export const getShiftTypeStyle = (type: ShiftType): string => {
@@ -17,5 +18,5 @@ export const formatTime = (dateString: string) => {
 };
 
 export const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString();
+  return format(new Date(dateString), "MMM d, yyyy");
 };

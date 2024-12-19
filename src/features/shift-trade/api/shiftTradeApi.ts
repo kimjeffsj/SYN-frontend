@@ -84,11 +84,27 @@ export const shiftTradeApi = {
     token: string,
     tradeId: number,
     responseId: number,
-    status: "ACCEPTED" | "REJECTED"
+    status: "ACCEPTED" | "REJECTED" | "PENDING"
   ) => {
+    console.log("API Call Parameters:", { token, tradeId, responseId, status });
+
     const response = await axios.patch<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses/${responseId}/status`,
       { status },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    console.log("API Response:", response.data);
+
+    return response.data;
+  },
+
+  // Giveaway Accept
+  acceptGiveaway: async (token: string, tradeId: number) => {
+    const response = await axios.post<ShiftTradeResponse>(
+      `${API_URL}/trades/${tradeId}/accept-giveaway`,
+      {},
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -105,6 +121,20 @@ export const shiftTradeApi = {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+  },
+
+  // checkAvailability
+  checkAvailability: async (token: string, tradeId: number) => {
+    const response = await axios.get<{ is_available: boolean }>(
+      `${API_URL}/trades/${tradeId}/check-availability`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
   },
 
   setupInterceptors: () => {

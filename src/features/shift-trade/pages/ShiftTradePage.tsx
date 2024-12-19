@@ -2,6 +2,7 @@ import { AppDispatch, RootState } from "@/app/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  acceptGiveaway,
   cancelTradeRequest,
   createTradeResponse,
   fetchTradeRequests,
@@ -62,23 +63,27 @@ export default function ShiftTradePage() {
     if (!selectedRequest) return;
 
     try {
-      await dispatch(
-        createTradeResponse({
-          tradeId: selectedRequest.id,
-          data: {
-            trade_request_id: selectedRequest.id,
-            offered_shift_id: scheduleId,
-            content: "",
-          },
-        })
-      ).unwrap();
+      if (selectedRequest.type === "GIVEAWAY") {
+        await dispatch(acceptGiveaway(selectedRequest.id)).unwrap();
+        toast.success("Successfully accepted giveaway shift!");
+      } else {
+        await dispatch(
+          createTradeResponse({
+            tradeId: selectedRequest.id,
+            data: {
+              trade_request_id: selectedRequest.id,
+              offered_shift_id: scheduleId,
+            },
+          })
+        ).unwrap();
+        toast.success("Successfully submitted trade response!");
+      }
 
       await dispatch(fetchTradeRequests({}));
       setSelectedRequest(null);
     } catch (error) {
       console.error("Failed to respond to trade request: ", error);
-
-      alert(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Failed to respond to trade request"
@@ -90,18 +95,27 @@ export default function ShiftTradePage() {
     responseId: number,
     status: "ACCEPTED" | "REJECTED"
   ) => {
-    if (!selectedRequest) return;
+    console.log("ShiftTradePage - handleUpdateResponseStatus", {
+      responseId,
+      status,
+    });
+
+    if (!selectedRequest) {
+      console.log("No selected request");
+      return;
+    }
 
     try {
-      await dispatch(
+      const result = await dispatch(
         updateResponseStatus({
           tradeId: selectedRequest.id,
           responseId,
           status,
         })
       ).unwrap();
+      console.log("Status update dispatch result:", result);
 
-      dispatch(fetchTradeRequests({}));
+      await dispatch(fetchTradeRequests({}));
     } catch (error) {
       console.error("Failed to update response status: ", error);
     }
@@ -226,6 +240,12 @@ export default function ShiftTradePage() {
           userSchedules={schedules}
           currentUserId={user?.id || 0}
           onDelete={handleDeleteRequest}
+          onAcceptResponse={(responseId) =>
+            handleUpdateResponseStatus(responseId, "ACCEPTED")
+          }
+          onRejectResponse={(responseId) =>
+            handleUpdateResponseStatus(responseId, "REJECTED")
+          }
         />
       )}
     </div>

@@ -105,7 +105,7 @@ export const createTradeResponse = createAsyncThunk(
         tradeId,
         data
       );
-      return response;
+      return { tradeId, response };
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(
@@ -127,10 +127,16 @@ export const updateResponseStatus = createAsyncThunk(
     }: {
       tradeId: number;
       responseId: number;
-      status: "ACCEPTED" | "REJECTED";
+      status: "ACCEPTED" | "REJECTED" | "PENDING";
     },
     { getState, rejectWithValue }
   ) => {
+    console.log("updateResponseStatus thunk called:", {
+      tradeId,
+      responseId,
+      status,
+    });
+
     try {
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
@@ -141,6 +147,8 @@ export const updateResponseStatus = createAsyncThunk(
         responseId,
         status
       );
+      console.log("API call successful:", response);
+
       return { tradeId, response };
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -166,6 +174,26 @@ export const cancelTradeRequest = createAsyncThunk(
       if (error instanceof AxiosError) {
         return rejectWithValue(
           error.response?.data?.detail || "Failed to cancel request"
+        );
+      }
+      return rejectWithValue("An unexpected error occurred");
+    }
+  }
+);
+
+export const acceptGiveaway = createAsyncThunk(
+  "shiftTrade/acceptGiveaway",
+  async (tradeId: number, { getState, rejectWithValue }) => {
+    try {
+      const token = (getState() as RootState).auth.accessToken;
+      if (!token) throw new Error("No access token");
+
+      const response = await shiftTradeApi.acceptGiveaway(token, tradeId);
+      return response;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(
+          error.response?.data?.detail || "Failed to accept giveaway"
         );
       }
       return rejectWithValue("An unexpected error occurred");
@@ -231,16 +259,16 @@ const shiftTradeSlice = createSlice({
 
       // Create response
       .addCase(createTradeResponse.fulfilled, (state, action) => {
-        const response = action.payload;
-        const request = state.requests.find(
-          (r) => r.id === response.trade_request_id
-        );
-        if (request && Array.isArray(request.responses)) {
+        const { tradeId, response } = action.payload;
+        const request = state.requests.find((r) => r.id === tradeId);
+        if (request) {
+          if (!request.responses) {
+            request.responses = [];
+          }
           request.responses.push(response);
         }
-
-        if (state.selectedRequest?.id === response.trade_request_id) {
-          if (!Array.isArray(state.selectedRequest.responses)) {
+        if (state.selectedRequest?.id === tradeId) {
+          if (!state.selectedRequest.responses) {
             state.selectedRequest.responses = [];
           }
           state.selectedRequest.responses.push(response);
@@ -250,24 +278,43 @@ const shiftTradeSlice = createSlice({
       // Update response status
       .addCase(updateResponseStatus.fulfilled, (state, action) => {
         const { tradeId, response } = action.payload;
-        const request = state.requests.find((r) => r.id === tradeId);
-        if (request) {
-          const responseIndex = request.responses.findIndex(
-            (r) => r.id === response.id
-          );
-          if (responseIndex !== -1) {
-            request.responses[responseIndex] = response;
+        if (response.status === "ACCEPTED") {
+          state.requests = state.requests.filter((r) => r.id !== tradeId);
+          if (state.selectedRequest?.id === tradeId) {
+            state.selectedRequest = null;
           }
-        }
-        if (state.selectedRequest?.id === tradeId) {
-          const responseIndex = state.selectedRequest.responses.findIndex(
-            (r) => r.id === response.id
-          );
-          if (responseIndex !== -1) {
-            state.selectedRequest.responses[responseIndex] = response;
+        } else {
+          const request = state.requests.find((r) => r.id === tradeId);
+          if (request) {
+            const responseIndex = request.responses.findIndex(
+              (r) => r.id === response.id
+            );
+            if (responseIndex !== -1) {
+              request.responses[responseIndex] = response;
+            }
           }
         }
       })
+      .addCase(acceptGiveaway.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(acceptGiveaway.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Remove the accepted request from the list
+        state.requests = state.requests.filter(
+          (request) => request.id !== action.payload.id
+        );
+        // Clear selected request if it was the one that was accepted
+        if (state.selectedRequest?.id === action.payload.id) {
+          state.selectedRequest = null;
+        }
+      })
+      .addCase(acceptGiveaway.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Accept Giveaway
       .addCase(cancelTradeRequest.fulfilled, (state, action) => {
         state.requests = state.requests.filter((r) => r.id !== action.payload);
       });

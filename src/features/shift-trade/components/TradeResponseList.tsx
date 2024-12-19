@@ -52,26 +52,28 @@ const TradeResponseList: React.FC<TradeResponseListProps> = ({
             </div>
 
             {/* Offered Shift Details */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <div className="flex items-center mb-2">
-                <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                <span>
-                  {new Date(
-                    response.offered_shift.start_time
-                  ).toLocaleDateString()}
-                </span>
+            {response.offered_shift && (
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="flex items-center mb-2">
+                  <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                  <span>
+                    {new Date(
+                      response.offered_shift.start_time
+                    ).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 text-gray-400 mr-2" />
+                  <span>
+                    {formatTime(response.offered_shift.start_time)} -{" "}
+                    {formatTime(response.offered_shift.end_time)}
+                  </span>
+                </div>
+                <div className="mt-2 text-sm text-gray-600">
+                  Shift Type: {response.offered_shift.shift_type}
+                </div>
               </div>
-              <div className="flex items-center">
-                <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                <span>
-                  {formatTime(response.offered_shift.start_time)} -{" "}
-                  {formatTime(response.offered_shift.end_time)}
-                </span>
-              </div>
-              <div className="mt-2 text-sm text-gray-600">
-                Shift Type: {response.offered_shift.shift_type}
-              </div>
-            </div>
+            )}
 
             {/* Response Message */}
             {response.content && (
