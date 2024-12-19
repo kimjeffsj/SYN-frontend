@@ -101,7 +101,7 @@ export default function ShiftTradePage() {
         })
       ).unwrap();
 
-      dispatch(fetchTradeRequests({}));
+      await dispatch(fetchTradeRequests({}));
     } catch (error) {
       console.error("Failed to update response status: ", error);
     }

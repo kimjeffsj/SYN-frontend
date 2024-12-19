@@ -84,7 +84,7 @@ export const shiftTradeApi = {
     token: string,
     tradeId: number,
     responseId: number,
-    status: "ACCEPTED" | "REJECTED"
+    status: "ACCEPTED" | "REJECTED" | "PENDING"
   ) => {
     const response = await axios.patch<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses/${responseId}/status`,

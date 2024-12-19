@@ -1,6 +1,7 @@
 export type TradeType = "TRADE" | "GIVEAWAY";
-export type TradeStatus = "OPEN" | "PENDING" | "COMPLETED";
+export type TradeStatus = "OPEN" | "COMPLETED" | "CANCELLED";
 export type UrgencyLevel = "high" | "normal";
+export type ResponseStatus = "ACCEPTED" | "REJECTED" | "PENDING";
 
 export interface UserInfo {
   id: number;
@@ -38,13 +39,14 @@ export interface ShiftTradeResponse {
   id: number;
   respondent: UserInfo;
   trade_request_id: number;
+
   offered_shift: {
     start_time: string;
     end_time: string;
     shift_type: string;
   };
   content?: string;
-  status: string;
+  status: ResponseStatus;
   created_at: string;
 }
 
