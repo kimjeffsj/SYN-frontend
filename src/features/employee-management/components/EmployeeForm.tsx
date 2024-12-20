@@ -23,19 +23,8 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
   initialData,
   mode,
 }) => {
-  const [departments, setDepartments] = useState<string[]>([
-    "Engineering",
-    "Marketing",
-    "Sales",
-    "Human Resources",
-  ]);
-
-  const [positions, setPositions] = useState<string[]>([
-    "Software Engineer",
-    "Product Manager",
-    "Sales Representative",
-    "HR Manager",
-  ]);
+  const [department, setDepartment] = useState("");
+  const [position, setPosition] = useState("");
 
   const [formData, setFormData] = useState<
     CreateEmployeeDto | UpdateEmployeeDto
@@ -168,40 +157,20 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
           {/* Department */}
           <Combobox
+            value={department}
+            onChange={setDepartment}
+            type="department"
             label="Department"
-            value={formData.department || ""}
-            onChange={(value) =>
-              setFormData((prev) => ({
-                ...prev,
-                department: value,
-              }))
-            }
-            options={departments}
-            placeholder="Select or enter department"
-            onAddNewOption={(value) => {
-              if (!departments.includes(value)) {
-                setDepartments((prev) => [...prev, value]);
-              }
-            }}
+            required
           />
 
           {/* Position */}
           <Combobox
+            value={position}
+            onChange={setPosition}
+            type="position"
             label="Position"
-            value={formData.position || ""}
-            onChange={(value) =>
-              setFormData((prev) => ({
-                ...prev,
-                position: value,
-              }))
-            }
-            options={positions}
-            placeholder="Select or enter position"
-            onAddNewOption={(value) => {
-              if (!positions.includes(value)) {
-                setPositions((prev) => [...prev, value]);
-              }
-            }}
+            required
           />
 
           {/* Active Status (only for edit mode) */}

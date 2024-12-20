@@ -55,3 +55,16 @@ export interface HistoryTabProps {
   schedules: Schedule[];
   tradeRequests: ShiftTradeRequest[];
 }
+
+// Departments and positions
+export interface DepartmentResponse {
+  id: number;
+  name: string;
+  description?: string | null;
+}
+
+export interface PositionResponse {
+  id: number;
+  name: string;
+  description?: string | null;
+}
