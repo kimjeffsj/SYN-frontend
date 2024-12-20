@@ -8,6 +8,11 @@ export type ScheduleStatus =
 export interface Schedule {
   id: number;
   user_id: number;
+  user: {
+    id: number;
+    full_name: string;
+    position?: string;
+  };
   start_time: string;
   end_time: string;
   shift_type: ShiftType;

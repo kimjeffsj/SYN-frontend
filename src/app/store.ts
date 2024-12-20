@@ -7,6 +7,7 @@ import announcementReducer from "@/features/announcement/slice/announcementSlice
 import notificationReducer, {
   handleWebSocketMessage,
 } from "@/features/notifications/slice/notificationSlice";
+import employeeReducer from "@/features/employee-management/slice/employeeSlice";
 
 import { Action, configureStore, Middleware } from "@reduxjs/toolkit";
 import { WebSocketMessage, wsService } from "@/services/websocket";
@@ -56,6 +57,7 @@ export const store = configureStore({
     shiftTrade: shiftTradeReducer,
     announcement: announcementReducer,
     notification: notificationReducer,
+    employees: employeeReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(wsMiddleware),
