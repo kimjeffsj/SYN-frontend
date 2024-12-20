@@ -65,6 +65,13 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
     return times[shiftType];
   };
 
+  const convertToUTCString = (dateStr: string, timeStr: string) => {
+    const [hours, minutes] = timeStr.split(":");
+    const date = new Date(dateStr);
+    date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0);
+    return date.toISOString();
+  };
+
   const handleShiftTypeChange = (shiftType: ShiftType) => {
     const date = formData.start_time.split("T")[0];
     if (date) {
@@ -72,8 +79,8 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
       setFormData((prev) => ({
         ...prev,
         shift_type: shiftType,
-        start_time: `${date}T${times.start}:00Z`,
-        end_time: `${date}T${times.end}:00Z`,
+        start_time: convertToUTCString(date, times.start),
+        end_time: convertToUTCString(date, times.end),
       }));
     } else {
       setFormData((prev) => ({
@@ -145,8 +152,8 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
               const times = getShiftTimes(formData.shift_type);
               setFormData((prev) => ({
                 ...prev,
-                start_time: `${date}T${times.start}:00Z`,
-                end_time: `${date}T${times.end}:00Z`,
+                start_time: convertToUTCString(date, times.start),
+                end_time: convertToUTCString(date, times.end),
               }));
             }}
             className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"

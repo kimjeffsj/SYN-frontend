@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Bell, X, Calendar, Clock, AlertCircle } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
@@ -16,6 +16,9 @@ import { WebSocketMessage, wsService } from "@/services/websocket";
 
 const NotificationCenter: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+
   const dispatch = useDispatch<AppDispatch>();
   const { notifications, unreadCount, isWebSocketConnected } = useSelector(
     (state: RootState) => state.notification
@@ -72,7 +75,7 @@ const NotificationCenter: React.FC = () => {
     switch (notification.type) {
       case NotificationType.SCHEDULE_CHANGE:
         if ("schedule_id" in notification.data) {
-          window.location.href = `/schedule?date=${notification.data.schedule_id}`;
+          window.location.href = `/schedule/${notification.data.schedule_id}`;
         }
         break;
       case NotificationType.SHIFT_TRADE:
@@ -90,8 +93,27 @@ const NotificationCenter: React.FC = () => {
     await dispatch(markAllNotificationsAsRead());
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={notificationRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 hover:bg-gray-100 rounded-full"
