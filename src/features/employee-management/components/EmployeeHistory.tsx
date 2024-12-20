@@ -1,27 +1,29 @@
 import React, { useState } from "react";
 import { Calendar, ArrowLeftRight } from "lucide-react";
-import { format } from "date-fns";
+import { format, subMonths } from "date-fns";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { TabPanelProps, HistoryTabProps } from "../types/employee.type";
+import { HistoryTabProps } from "../types/employee.type";
 import { StatusColor } from "@/shared/utils/status.utils";
-
-function TabPanel({ children, value, index }: TabPanelProps) {
-  return (
-    <div hidden={value !== index} className="py-4">
-      {value === index && children}
-    </div>
-  );
-}
 
 export const EmployeeHistory: React.FC<HistoryTabProps> = ({
   schedules,
   tradeRequests,
 }) => {
   const [activeTab, setActiveTab] = useState(0);
+  const oneMonthAgo = subMonths(new Date(), 1);
+
+  // 1 month filter
+  const filteredSchedules = schedules.filter(
+    (schedules) => new Date(schedules.start_time) >= oneMonthAgo
+  );
+
+  const filteredTradeRequests = tradeRequests.filter(
+    (request) => new Date(request.created_at) >= oneMonthAgo
+  );
 
   const renderScheduleHistory = () => (
     <div className="space-y-4">
-      {schedules.map((schedule) => (
+      {filteredSchedules.map((schedule) => (
         <div
           key={schedule.id}
           className="bg-white rounded-lg border p-4 hover:shadow-sm transition-shadow"
@@ -52,7 +54,7 @@ export const EmployeeHistory: React.FC<HistoryTabProps> = ({
           </div>
         </div>
       ))}
-      {schedules.length === 0 && (
+      {filteredSchedules.length === 0 && (
         <div className="text-center text-gray-500 py-8">
           No schedule history available
         </div>
@@ -62,7 +64,7 @@ export const EmployeeHistory: React.FC<HistoryTabProps> = ({
 
   const renderTradeHistory = () => (
     <div className="space-y-4">
-      {tradeRequests.map((trade) => (
+      {filteredTradeRequests.map((trade) => (
         <div
           key={trade.id}
           className="bg-white rounded-lg border p-4 hover:shadow-sm transition-shadow"
@@ -97,7 +99,7 @@ export const EmployeeHistory: React.FC<HistoryTabProps> = ({
           )}
         </div>
       ))}
-      {tradeRequests.length === 0 && (
+      {filteredTradeRequests.length === 0 && (
         <div className="text-center text-gray-500 py-8">
           No trade history available
         </div>
@@ -130,12 +132,9 @@ export const EmployeeHistory: React.FC<HistoryTabProps> = ({
         </button>
       </div>
 
-      <TabPanel value={activeTab} index={0}>
-        {renderScheduleHistory()}
-      </TabPanel>
-      <TabPanel value={activeTab} index={1}>
-        {renderTradeHistory()}
-      </TabPanel>
+      <div className="mt-4">
+        {activeTab === 0 ? renderScheduleHistory() : renderTradeHistory()}
+      </div>
     </div>
   );
 };

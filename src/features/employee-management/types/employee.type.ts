@@ -55,9 +55,3 @@ export interface HistoryTabProps {
   schedules: Schedule[];
   tradeRequests: ShiftTradeRequest[];
 }
-
-export interface TabPanelProps {
-  children: React.ReactNode;
-  value: number;
-  index: number;
-}

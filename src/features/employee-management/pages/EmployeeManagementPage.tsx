@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import { Plus, Search } from "lucide-react";
@@ -9,6 +9,7 @@ import {
   createEmployee,
   updateEmployee,
   fetchEmployee,
+  clearSelectedEmployee,
 } from "../slice/employeeSlice";
 import {
   CreateEmployeeDto,
@@ -88,6 +89,30 @@ export const EmployeesPage = () => {
     }
   };
 
+  const handleClose = () => {
+    setSelectedEmployeeId(null);
+    dispatch(clearSelectedEmployee());
+  };
+
+  const handleEdit = (employee: Employee) => {
+    handleClose();
+    setEditingEmployee(employee);
+  };
+
+  const filteredEmployees = useMemo(() => {
+    return employees.filter((employee) => {
+      const searchTerm = searchQuery.toLowerCase().trim();
+      if (!searchTerm) return true;
+
+      return (
+        employee.full_name?.toLowerCase().includes(searchTerm) ||
+        employee.email.toLowerCase().includes(searchTerm) ||
+        employee.position?.toLowerCase().includes(searchTerm) ||
+        employee.department?.toLowerCase().includes(searchTerm)
+      );
+    });
+  }, [employees, searchQuery]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -135,39 +160,36 @@ export const EmployeesPage = () => {
         </div>
       ) : (
         <EmployeeList
-          employees={employees}
+          employees={filteredEmployees}
           onEmployeeClick={handleEmployeeClick}
         />
       )}
 
       {/* Modals */}
-      <EmployeeForm
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCreateEmployee}
-        mode="create"
-      />
-
-      {editingEmployee && (
-        <EmployeeForm
-          isOpen={true}
-          onClose={() => setEditingEmployee(null)}
-          onSubmit={handleUpdateEmployee}
-          initialData={editingEmployee}
-          mode="edit"
-        />
-      )}
-
       {/* Employee Detail Modal */}
       {selectedEmployee && (
         <EmployeeDetail
           employee={selectedEmployee}
           isOpen={true}
-          onClose={() => setSelectedEmployeeId(null)}
+          onClose={handleClose}
           onEdit={() => {
-            setEditingEmployee(selectedEmployee);
-            setSelectedEmployeeId(null);
+            handleEdit(selectedEmployee);
           }}
+        />
+      )}
+
+      {(showCreateModal || editingEmployee) && (
+        <EmployeeForm
+          isOpen={true}
+          onClose={() => {
+            setShowCreateModal(false);
+            setEditingEmployee(null);
+          }}
+          onSubmit={
+            editingEmployee ? handleUpdateEmployee : handleCreateEmployee
+          }
+          initialData={editingEmployee}
+          mode={editingEmployee ? "edit" : "create"}
         />
       )}
     </div>

@@ -34,8 +34,8 @@ export const EmployeeDetail: React.FC<EmployeeDetailProps> = ({
                 <p className="text-sm text-gray-500">{employee.email}</p>
               </div>
               <StatusBadge
-                size="lg"
                 status={employee.is_active ? "active" : "onLeave"}
+                size="lg"
               />
             </div>
           </div>
@@ -122,15 +122,15 @@ export const EmployeeDetail: React.FC<EmployeeDetailProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end pt-4 border-t space-x-3">
+        <div className="flex justify-end gap-4 pt-4 border-t">
           <button
-            onClick={onClose}
+            onClick={() => onClose()}
             className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
           >
             Close
           </button>
           <button
-            onClick={onEdit}
+            onClick={() => onEdit()}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
             Edit Employee
