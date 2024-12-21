@@ -7,6 +7,7 @@ import {
   DepartmentResponse,
   PositionResponse,
 } from "../types/employee.type";
+import axiosInstance from "@/services/axios-config";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,15 +20,18 @@ export const employeeApi = {
       search?: string;
     }
   ) => {
-    const response = await axios.get<Employee[]>(`${API_URL}/admin/employees`, {
-      headers: { Authorization: `Bearer ${token}` },
-      params,
-    });
+    const response = await axiosInstance.get<Employee[]>(
+      `${API_URL}/admin/employees`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params,
+      }
+    );
     return response.data;
   },
 
   getEmployee: async (token: string, id: number) => {
-    const response = await axios.get<EmployeeDetail>(
+    const response = await axiosInstance.get<EmployeeDetail>(
       `${API_URL}/admin/employees/${id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -35,7 +39,7 @@ export const employeeApi = {
   },
 
   createEmployee: async (token: string, data: CreateEmployeeDto) => {
-    const response = await axios.post<Employee>(
+    const response = await axiosInstance.post<Employee>(
       `${API_URL}/admin/employees`,
       data,
       {
@@ -50,7 +54,7 @@ export const employeeApi = {
     id: number,
     data: UpdateEmployeeDto
   ) => {
-    const response = await axios.patch<Employee>(
+    const response = await axiosInstance.patch<Employee>(
       `${API_URL}/admin/employees/${id}`,
       data,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -60,7 +64,7 @@ export const employeeApi = {
 
   getDepartments: async (token: string) => {
     try {
-      const response = await axios.get<DepartmentResponse[]>(
+      const response = await axiosInstance.get<DepartmentResponse[]>(
         `${API_URL}/admin/departments`,
         {
           headers: {
@@ -82,7 +86,7 @@ export const employeeApi = {
 
   getPositions: async (token: string) => {
     try {
-      const response = await axios.get<PositionResponse[]>(
+      const response = await axiosInstance.get<PositionResponse[]>(
         `${API_URL}/admin/positions`,
         {
           headers: {
@@ -103,11 +107,11 @@ export const employeeApi = {
 
   addDepartment: async (token: string, name: string) => {
     try {
-      const response = await axios.post<DepartmentResponse>(
+      const response = await axiosInstance.post<DepartmentResponse>(
         `${API_URL}/admin/departments`,
         {
           name: name,
-          description: null, // PositionCreate 스키마에 맞춰서 전송
+          description: null,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -122,7 +126,7 @@ export const employeeApi = {
 
   addPosition: async (token: string, name: string) => {
     try {
-      const response = await axios.post<PositionResponse>(
+      const response = await axiosInstance.post<PositionResponse>(
         `${API_URL}/admin/positions`,
         {
           name: name,

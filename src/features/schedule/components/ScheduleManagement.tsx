@@ -3,6 +3,7 @@ import { Calendar, Clock, User, Check, X, Search } from "lucide-react";
 import { Schedule, ScheduleStatus } from "../types/schedule.type";
 import { getShiftTypeStyle } from "../\butils/schedule.utils";
 import { StatusBadge } from "@/shared/components/StatusBadge";
+import { StatusColor } from "@/shared/utils/status.utils";
 
 interface ScheduleManagementProps {
   schedules: Schedule[];
@@ -25,6 +26,30 @@ const ScheduleManagement: React.FC<ScheduleManagementProps> = ({
     { value: "cancelled", label: "Cancelled" },
     { value: "completed", label: "Completed" },
   ];
+
+  const filteredSchedules = schedules.filter((schedule) => {
+    // Status filter
+    if (
+      selectedStatus !== "all" &&
+      schedule.status.toLowerCase() !== selectedStatus
+    ) {
+      return false;
+    }
+
+    // Search query filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        schedule.user?.name?.toLowerCase().includes(searchLower) ||
+        schedule.user?.position?.toLowerCase().includes(searchLower) ||
+        schedule.user?.department?.toLowerCase().includes(searchLower) ||
+        schedule.shift_type.toLowerCase().includes(searchLower) ||
+        schedule.status.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return true;
+  });
 
   return (
     <div className="bg-white rounded-lg border shadow-sm">
@@ -78,15 +103,21 @@ const ScheduleManagement: React.FC<ScheduleManagementProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {schedules.map((schedule) => (
+            {filteredSchedules.map((schedule) => (
               <tr key={schedule.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <User className="w-8 h-8 bg-gray-100 rounded-full p-1.5 text-gray-600" />
                     <div className="ml-3">
                       <div className="text-sm font-medium text-gray-900">
-                        {schedule.user_id}{" "}
-                        {/* TODO: Add user name from relationship */}
+                        {schedule.user?.name || `Employee #${schedule.user_id}`}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {schedule.user?.position && schedule.user?.department
+                          ? `${schedule.user.position} • ${schedule.user.department}`
+                          : schedule.user?.position ||
+                            schedule.user?.department ||
+                            "No position/department"}
                       </div>
                     </div>
                   </div>
@@ -115,8 +146,7 @@ const ScheduleManagement: React.FC<ScheduleManagementProps> = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <StatusBadge
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    status={schedule.status.toLowerCase() as any}
+                    status={schedule.status.toLowerCase() as StatusColor}
                     size="sm"
                   />
                 </td>
@@ -160,7 +190,9 @@ const ScheduleManagement: React.FC<ScheduleManagementProps> = ({
       <div className="px-4 py-3 border-t">
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-500">
-            Showing {schedules.length} results
+            {filteredSchedules.length === 0
+              ? "No results found"
+              : `Showing ${filteredSchedules.length} of ${schedules.length} results`}
           </div>
         </div>
       </div>

@@ -5,14 +5,17 @@ export type ScheduleStatus =
   | "cancelled"
   | "completed";
 
+interface UserInfo {
+  id: number;
+  name: string;
+  position?: string | null;
+  department?: string | null;
+}
+
 export interface Schedule {
   id: number;
   user_id: number;
-  user: {
-    id: number;
-    full_name: string;
-    position?: string;
-  };
+  user: UserInfo;
   start_time: string;
   end_time: string;
   shift_type: ShiftType;

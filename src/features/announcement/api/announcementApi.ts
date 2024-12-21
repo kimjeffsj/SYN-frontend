@@ -1,16 +1,16 @@
-import axios from "axios";
 import {
   Announcement,
   AnnouncementResponse,
   CreateAnnouncement,
 } from "../types/announcement.type";
+import axiosInstance from "@/services/axios-config";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const announcementApi = {
   // Get all announcements
   getAnnouncements: async (token: string) => {
-    const response = await axios.get<AnnouncementResponse>(
+    const response = await axiosInstance.get<AnnouncementResponse>(
       `${API_URL}/announcements`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -21,7 +21,7 @@ export const announcementApi = {
 
   // Get single announcement
   getAnnouncement: async (token: string, id: number) => {
-    const response = await axios.get<Announcement>(
+    const response = await axiosInstance.get<Announcement>(
       `${API_URL}/announcements/${id}`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -32,7 +32,7 @@ export const announcementApi = {
 
   // Create announcement
   createAnnouncement: async (token: string, data: CreateAnnouncement) => {
-    const response = await axios.post<Announcement>(
+    const response = await axiosInstance.post<Announcement>(
       `${API_URL}/announcements`,
       data,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -46,7 +46,7 @@ export const announcementApi = {
     id: number,
     data: Partial<CreateAnnouncement>
   ) => {
-    const response = await axios.patch<Announcement>(
+    const response = await axiosInstance.patch<Announcement>(
       `${API_URL}/announcements/${id}`,
       data,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -56,14 +56,14 @@ export const announcementApi = {
 
   // Delete announcement
   deleteAnnouncement: async (token: string, id: number) => {
-    await axios.delete(`${API_URL}/announcements/${id}`, {
+    await axiosInstance.delete(`${API_URL}/announcements/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
   },
 
   // Mark as red
   markAsRead: async (token: string, id: number) => {
-    const response = await axios.post<Announcement>(
+    const response = await axiosInstance.post<Announcement>(
       `${API_URL}/announcements/${id}/read`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }

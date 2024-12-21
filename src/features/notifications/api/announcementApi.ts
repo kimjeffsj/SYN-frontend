@@ -1,5 +1,5 @@
-import axios from "axios";
 import { NotificationItem } from "../type/notification";
+import axiosInstance from "@/services/axios-config";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,7 +11,7 @@ interface NotificationResponse {
 
 export const notificationApi = {
   getNotifications: async (token: string) => {
-    const response = await axios.get<NotificationResponse>(
+    const response = await axiosInstance.get<NotificationResponse>(
       `${API_URL}/notifications`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -22,7 +22,7 @@ export const notificationApi = {
 
   // Mark as read
   markAsRead: async (token: string, id: number) => {
-    const response = await axios.post<NotificationItem>(
+    const response = await axiosInstance.post<NotificationItem>(
       `${API_URL}/notifications/${id}/read`,
       {},
       {
@@ -34,7 +34,7 @@ export const notificationApi = {
 
   // Mark all as read
   markAllAsRead: async (token: string) => {
-    await axios.post(
+    await axiosInstance.post(
       `${API_URL}/notifications/read-all`,
       {},
       {
@@ -52,7 +52,7 @@ export const notificationApi = {
       skip?: number;
     }
   ) => {
-    const response = await axios.get<NotificationResponse>(
+    const response = await axiosInstance.get<NotificationResponse>(
       `${API_URL}/notifications`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -64,7 +64,7 @@ export const notificationApi = {
 
   // Setup interceptors
   setupInterceptors: () => {
-    axios.interceptors.response.use(
+    axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {

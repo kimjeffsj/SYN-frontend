@@ -44,9 +44,10 @@ class WebSocketService {
     }
 
     try {
-      const wsUrl = `wss://${import.meta.env.VITE_WS_URL}/ws/notifications/${
-        user.id
-      }?token=${token}`;
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${
+        import.meta.env.VITE_WS_URL
+      }/ws/notifications/${user.id}?token=${token}`;
       console.log("Connecting to WebSocket:", wsUrl);
 
       this.ws = new WebSocket(wsUrl);
