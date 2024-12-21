@@ -23,8 +23,8 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
   initialData,
   mode,
 }) => {
-  const [department, setDepartment] = useState("");
-  const [position, setPosition] = useState("");
+  const [department, setDepartment] = useState(initialData?.department || "");
+  const [position, setPosition] = useState(initialData?.position || "");
 
   const [formData, setFormData] = useState<
     CreateEmployeeDto | UpdateEmployeeDto
@@ -50,6 +50,22 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
     };
   });
 
+  const handleDepartmentChange = (value: string) => {
+    setDepartment(value);
+    setFormData((prev) => ({
+      ...prev,
+      department: value || null,
+    }));
+  };
+
+  const handlePositionChange = (value: string) => {
+    setPosition(value);
+    setFormData((prev) => ({
+      ...prev,
+      position: value || null,
+    }));
+  };
+
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setFormData({
@@ -71,6 +87,8 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
     try {
       setIsSubmitting(true);
       setError(null);
+      console.log("Submitting form data:", formData); // 디버깅용
+
       await onSubmit(formData);
       onClose();
     } catch (err) {
@@ -158,7 +176,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           {/* Department */}
           <Combobox
             value={department}
-            onChange={setDepartment}
+            onChange={handleDepartmentChange}
             type="department"
             label="Department"
             required
@@ -167,7 +185,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           {/* Position */}
           <Combobox
             value={position}
-            onChange={setPosition}
+            onChange={handlePositionChange}
             type="position"
             label="Position"
             required
