@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "@/services/axios-config";
 import { LoginCredentials, LoginResponse } from "../types/auth.type";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -9,7 +9,7 @@ export const authApi = {
     formData.append("username", credential.email);
     formData.append("password", credential.password);
 
-    const response = await axios.post<LoginResponse>(
+    const response = await axiosInstance.post<LoginResponse>(
       `${API_URL}/auth/login`,
       formData
     );
@@ -18,7 +18,7 @@ export const authApi = {
 
   logout: async (token: string) => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         `${API_URL}/auth/logout`,
         {},
         {
@@ -35,7 +35,7 @@ export const authApi = {
   },
 
   getCurrentUser: async (token: string) => {
-    const response = await axios.get(`${API_URL}/auth/me`, {
+    const response = await axiosInstance.get(`${API_URL}/auth/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

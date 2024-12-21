@@ -1,10 +1,10 @@
-import axios from "axios";
 import {
   CreateTradeRequest,
   CreateTradeResponse,
   ShiftTradeRequest,
   ShiftTradeResponse,
 } from "../types/shift-trade.type";
+import axiosInstance from "@/services/axios-config";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,7 +19,7 @@ export const shiftTradeApi = {
     }
   ) => {
     try {
-      const response = await axios.get<ShiftTradeRequest[]>(
+      const response = await axiosInstance.get<ShiftTradeRequest[]>(
         `${API_URL}/trades`,
         {
           headers: {
@@ -39,7 +39,7 @@ export const shiftTradeApi = {
 
   // Get a trade request
   getTradeRequest: async (token: string, id: number) => {
-    const response = await axios.get<ShiftTradeRequest>(
+    const response = await axiosInstance.get<ShiftTradeRequest>(
       `${API_URL}/trades/${id}`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -50,7 +50,7 @@ export const shiftTradeApi = {
 
   // Create a new trade request
   createTradeRequest: async (token: string, data: CreateTradeRequest) => {
-    const response = await axios.post<ShiftTradeRequest>(
+    const response = await axiosInstance.post<ShiftTradeRequest>(
       `${API_URL}/trades`,
       data,
       {
@@ -66,7 +66,7 @@ export const shiftTradeApi = {
     tradeId: number,
     data: CreateTradeResponse
   ): Promise<ShiftTradeResponse> => {
-    const response = await axios.post<ShiftTradeResponse>(
+    const response = await axiosInstance.post<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses`,
       data,
       {
@@ -88,7 +88,7 @@ export const shiftTradeApi = {
   ) => {
     console.log("API Call Parameters:", { token, tradeId, responseId, status });
 
-    const response = await axios.patch<ShiftTradeResponse>(
+    const response = await axiosInstance.patch<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/responses/${responseId}/status`,
       { status },
       {
@@ -102,7 +102,7 @@ export const shiftTradeApi = {
 
   // Giveaway Accept
   acceptGiveaway: async (token: string, tradeId: number) => {
-    const response = await axios.post<ShiftTradeResponse>(
+    const response = await axiosInstance.post<ShiftTradeResponse>(
       `${API_URL}/trades/${tradeId}/accept-giveaway`,
       {},
       {
@@ -114,7 +114,7 @@ export const shiftTradeApi = {
 
   // cancel Trade request
   cancelTradeRequest: async (token: string, tradeId: number) => {
-    await axios.delete(
+    await axiosInstance.delete(
       `${API_URL}/trades/${tradeId}/cancel`,
 
       {
@@ -125,7 +125,7 @@ export const shiftTradeApi = {
 
   // checkAvailability
   checkAvailability: async (token: string, tradeId: number) => {
-    const response = await axios.get<{ is_available: boolean }>(
+    const response = await axiosInstance.get<{ is_available: boolean }>(
       `${API_URL}/trades/${tradeId}/check-availability`,
       {
         headers: {
@@ -138,7 +138,7 @@ export const shiftTradeApi = {
   },
 
   setupInterceptors: () => {
-    axios.interceptors.response.use(
+    axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {

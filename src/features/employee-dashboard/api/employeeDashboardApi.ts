@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   DashboardResponse,
   Employee,
@@ -6,12 +5,13 @@ import {
   Announcement,
   DashboardStats,
 } from "../type/employee-dashboard.type";
+import axiosInstance from "@/services/axios-config";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const employeeDashboardApi = {
   getDashboardStats: async (token: string) => {
-    const response = await axios.get<DashboardResponse>(
+    const response = await axiosInstance.get<DashboardResponse>(
       `${API_URL}/dashboard/`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -22,28 +22,34 @@ export const employeeDashboardApi = {
   },
 
   getEmployeeInfo: async (token: string) => {
-    const response = await axios.get<Employee>(`${API_URL}/profile`, {
+    const response = await axiosInstance.get<Employee>(`${API_URL}/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   },
 
   getTodaySchedule: async (token: string) => {
-    const response = await axios.get<Schedule>(`${API_URL}/schedule/today`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axiosInstance.get<Schedule>(
+      `${API_URL}/schedule/today`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return response.data;
   },
 
   getWeeklySchedule: async (token: string) => {
-    const response = await axios.get<Schedule[]>(`${API_URL}/schedule/weekly`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axiosInstance.get<Schedule[]>(
+      `${API_URL}/schedule/weekly`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return response.data;
   },
 
   getAnnouncements: async (token: string) => {
-    const response = await axios.get<Announcement[]>(
+    const response = await axiosInstance.get<Announcement[]>(
       `${API_URL}/announcements`,
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -53,7 +59,7 @@ export const employeeDashboardApi = {
   },
 
   markAnnouncementAsRead: async (token: string, announcementId: number) => {
-    await axios.patch(
+    await axiosInstance.patch(
       `${API_URL}/announcements/${announcementId}/read`,
       {},
       {
@@ -64,9 +70,12 @@ export const employeeDashboardApi = {
 
   // Total hours
   getHoursStats: async (token: string) => {
-    const response = await axios.get<DashboardStats>(`${API_URL}/stats/hours`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axiosInstance.get<DashboardStats>(
+      `${API_URL}/stats/hours`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return response.data;
   },
 
@@ -79,9 +88,13 @@ export const employeeDashboardApi = {
       reason: string;
     }
   ) => {
-    const response = await axios.post(`${API_URL}/leave/request`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axiosInstance.post(
+      `${API_URL}/leave/request`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return response.data;
   },
 
@@ -94,7 +107,7 @@ export const employeeDashboardApi = {
       message?: string;
     }
   ) => {
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${API_URL}/schedule/trade-request`,
       data,
       {
@@ -105,7 +118,7 @@ export const employeeDashboardApi = {
   },
 
   setupInterceptors: () => {
-    axios.interceptors.response.use(
+    axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
