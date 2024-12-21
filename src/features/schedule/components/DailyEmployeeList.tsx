@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { User, Clock } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { getShiftTypeStyle } from "../\butils/schedule.utils";
-import { useEffect } from "react";
+import { StatusColor } from "@/shared/utils/status.utils";
 
 interface DailyEmployeeListProps {
   date: Date;
@@ -20,10 +20,6 @@ export const DailyEmployeeList = ({
       minute: "2-digit",
     });
   };
-
-  useEffect(() => {
-    console.log("Schedules updated:", schedules);
-  }, [schedules]);
 
   return (
     <div className="bg-white rounded-lg shadow">
@@ -48,7 +44,20 @@ export const DailyEmployeeList = ({
                   <User className="w-8 h-8 bg-gray-100 rounded-full p-1.5 text-gray-600" />
                   <div>
                     <div className="font-medium">
-                      Employee #{schedule.user_id}
+                      {schedule.user?.name || `Employee #${schedule.user_id}`}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {schedule.user?.position && schedule.user?.department ? (
+                        <>
+                          {schedule.user.position} • {schedule.user.department}
+                        </>
+                      ) : schedule.user?.position ? (
+                        schedule.user.position
+                      ) : schedule.user?.department ? (
+                        schedule.user.department
+                      ) : (
+                        "No position/department info"
+                      )}
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="w-4 h-4 mr-1" />
@@ -66,9 +75,7 @@ export const DailyEmployeeList = ({
                     {schedule.shift_type}
                   </span>
                   <StatusBadge
-                    // TODO: Fix type error
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    status={schedule.status.toLowerCase() as any}
+                    status={schedule.status.toLowerCase() as StatusColor}
                     size="sm"
                   />
                 </div>
