@@ -44,7 +44,7 @@ class WebSocketService {
     }
 
     try {
-      const wsUrl = `wss//${import.meta.env.VITE_WS_URL}/ws/notifications/${
+      const wsUrl = `wss://${import.meta.env.VITE_WS_URL}/ws/notifications/${
         user.id
       }?token=${token}`;
       console.log("Connecting to WebSocket:", wsUrl);
