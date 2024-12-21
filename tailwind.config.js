@@ -1,4 +1,11 @@
 /** @type {import('tailwindcss').Config} */
+import path from "path";
+import { fileURLToPath } from "url";
+import scrollbarPlugin from "tailwind-scrollbar";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
@@ -62,5 +69,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwind-scrollbar")],
+  plugins: [scrollbarPlugin],
 };
