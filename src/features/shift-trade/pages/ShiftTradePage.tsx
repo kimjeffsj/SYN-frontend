@@ -15,9 +15,11 @@ import { ShiftTradeRequest } from "../types/shift-trade.type";
 import { TradeDetail } from "../components/TradeDetail";
 import { fetchMySchedules } from "@/features/schedule/slice/scheduleSlice";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 export default function ShiftTradePage() {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const { requests, isLoading, error } = useSelector(
     (state: RootState) => state.shiftTrade
   );
@@ -40,6 +42,8 @@ export default function ShiftTradePage() {
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
     null
   );
+
+  const [selectedTradeId, setSelectedTradeId] = useState<number | null>(null);
 
   // Request Detail States
   const [selectedRequest, setSelectedRequest] =
@@ -131,6 +135,21 @@ export default function ShiftTradePage() {
       toast.error("Failed to delete trade request");
     }
   };
+
+  useEffect(() => {
+    if (location.state?.openModal && location.state?.id) {
+      setSelectedTradeId(location.state);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    if (selectedTradeId && requests.length > 0) {
+      const found = requests.find((req) => req.id === selectedTradeId);
+      if (found) {
+        setSelectedRequest(found);
+      }
+    }
+  }, [selectedTradeId, requests]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

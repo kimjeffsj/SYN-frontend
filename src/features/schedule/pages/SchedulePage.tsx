@@ -3,11 +3,17 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ScheduleCalendar } from "../components/ScheduleCalendar";
 import { fetchMySchedules } from "../slice/scheduleSlice";
+import { useLocation } from "react-router-dom";
+import { ShiftDetail } from "../components/ShiftDetail";
 
 export const SchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const { isLoading, error, schedules } = useSelector(
     (state: RootState) => state.schedule
+  );
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
+    null
   );
 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -15,6 +21,12 @@ export const SchedulePage = () => {
   useEffect(() => {
     dispatch(fetchMySchedules());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (location.state?.openModal && location.state?.id) {
+      setSelectedScheduleId(location.state.id);
+    }
+  }, [location.state]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -37,6 +49,14 @@ export const SchedulePage = () => {
           schedules={schedules}
           currentDate={currentDate}
           onDateChange={setCurrentDate}
+        />
+      )}
+
+      {selectedScheduleId && (
+        <ShiftDetail
+          isOpen={true}
+          onClose={() => setSelectedScheduleId(null)}
+          schedule={schedules.find((s) => s.id === selectedScheduleId) || null}
         />
       )}
     </div>

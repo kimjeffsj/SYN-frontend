@@ -20,6 +20,7 @@ import {
   AnnouncementPriority,
   CreateAnnouncement,
 } from "../types/announcement.type";
+import { useLocation } from "react-router-dom";
 
 export default function AnnouncementsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,6 +42,11 @@ export default function AnnouncementsPage() {
   const [priorityFilter, setPriorityFilter] = useState<
     "all" | AnnouncementPriority
   >("all");
+
+  const location = useLocation();
+  const [selectedAnnouncementId, setSelectedAnnouncementId] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     dispatch(fetchAnnouncements());
@@ -107,6 +113,21 @@ export default function AnnouncementsPage() {
     .filter((announcement) =>
       priorityFilter === "all" ? true : announcement.priority === priorityFilter
     );
+
+  useEffect(() => {
+    if (location.state?.openModal && location.state?.id) {
+      setSelectedAnnouncementId(location.state.id);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (selectedAnnouncementId && items.length > 0) {
+      const found = items.find((a) => a.id === selectedAnnouncementId);
+      if (found) {
+        dispatch(setSelectedAnnouncement(found));
+      }
+    }
+  }, [selectedAnnouncementId, items, dispatch]);
 
   if (isLoading) {
     return (
