@@ -1,12 +1,16 @@
 import axios from "axios";
-import { Announcement, CreateAnnouncement } from "../types/announcement.type";
+import {
+  Announcement,
+  AnnouncementResponse,
+  CreateAnnouncement,
+} from "../types/announcement.type";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const announcementApi = {
   // Get all announcements
   getAnnouncements: async (token: string) => {
-    const response = await axios.get<Announcement[]>(
+    const response = await axios.get<AnnouncementResponse>(
       `${API_URL}/announcements`,
       {
         headers: { Authorization: `Bearer ${token}` },

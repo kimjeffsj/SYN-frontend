@@ -130,7 +130,15 @@ const announcementSlice = createSlice({
       })
       .addCase(fetchAnnouncements.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.announcements = action.payload;
+        state.announcements = {
+          items: Array.isArray(action.payload)
+            ? action.payload
+            : action.payload.items,
+          total: Array.isArray(action.payload)
+            ? action.payload.length
+            : action.payload.total,
+          unread: Array.isArray(action.payload) ? 0 : action.payload.unread,
+        };
         // TODO: come back to fix this type error
       })
       .addCase(fetchAnnouncements.rejected, (state, action) => {
