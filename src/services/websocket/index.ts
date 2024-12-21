@@ -108,11 +108,13 @@ class WebSocketService {
   }
 
   private handleNotification(notification: NotificationPayload): void {
-    if (Notification.permission === "granted") {
-      new Notification(notification.title, {
-        body: notification.message,
-        icon: "/notification-icon.png",
-      });
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification(notification.title, {
+          body: notification.message,
+          icon: "/notification-icon.png",
+        });
+      }
     }
 
     this.broadcastMessage({

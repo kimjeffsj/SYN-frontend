@@ -15,6 +15,7 @@ interface EmployeeComboboxProps {
   onChange: (employeeId: number, employeeName: string) => void;
   className?: string;
   disabled?: boolean;
+  required?: boolean;
 }
 
 export const EmployeeCombobox: React.FC<EmployeeComboboxProps> = ({
@@ -22,6 +23,7 @@ export const EmployeeCombobox: React.FC<EmployeeComboboxProps> = ({
   onChange,
   className = "",
   disabled = false,
+  required = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -102,7 +104,7 @@ export const EmployeeCombobox: React.FC<EmployeeComboboxProps> = ({
             focus:ring-2 focus:ring-primary/20 focus:border-primary
             disabled:bg-gray-100 disabled:cursor-not-allowed
           `}
-          required
+          required={required}
         />
         <button
           type="button"

@@ -1,9 +1,15 @@
-import { Schedule } from "../types/schedule.type";
+import { CreateScheduleDto, Schedule } from "../types/schedule.type";
 import { format } from "date-fns";
-import { User, Clock } from "lucide-react";
+import { User, Clock, Plus } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { getShiftTypeStyle } from "../\butils/schedule.utils";
 import { StatusColor } from "@/shared/utils/status.utils";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { useState } from "react";
+import { bulkCreateSchedules } from "../slice/scheduleSlice";
+import { toast } from "react-toastify";
+import BulkScheduleModal from "./BulkScheduleModal";
 
 interface DailyEmployeeListProps {
   date: Date;
@@ -14,6 +20,8 @@ export const DailyEmployeeList = ({
   date,
   schedules,
 }: DailyEmployeeListProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString([], {
       hour: "2-digit",
@@ -21,13 +29,33 @@ export const DailyEmployeeList = ({
     });
   };
 
+  const handleBulkCreate = async (schedules: CreateScheduleDto[]) => {
+    try {
+      await dispatch(bulkCreateSchedules(schedules)).unwrap();
+      toast.success("Schedules created successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create schedules"
+      );
+      throw error;
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">
           Employee Schedule - {format(date, "MMM d, yyyy")}
         </h3>
+        <button
+          onClick={() => setShowBulkModal(true)}
+          className="flex items-center px-3 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-primary/90"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Schedules
+        </button>
       </div>
+
       <div className="p-4">
         {schedules.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
@@ -84,6 +112,13 @@ export const DailyEmployeeList = ({
           </div>
         )}
       </div>
+
+      <BulkScheduleModal
+        isOpen={showBulkModal}
+        onClose={() => setShowBulkModal(false)}
+        onSubmit={handleBulkCreate}
+        selectedDate={date}
+      />
     </div>
   );
 };

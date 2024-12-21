@@ -77,9 +77,7 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
 
   const convertToUTCString = (dateStr: string, timeStr: string) => {
     const [hours, minutes] = timeStr.split(":");
-    const date = new Date(dateStr);
-    date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0);
-    return date.toISOString();
+    return `${dateStr}T${hours}:${minutes}:00.000Z`;
   };
 
   const handleShiftTypeChange = (shiftType: ShiftType) => {

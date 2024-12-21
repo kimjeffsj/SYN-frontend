@@ -75,12 +75,57 @@ export interface AnnouncementNotification extends BaseNotification {
   };
 }
 
-export type NotificationItem =
-  | ScheduleChangeNotification
-  | ShiftTradeNotification
-  | AnnouncementNotification
-  | NotificationPayload;
+export interface AnnouncementNotificationData {
+  announcement_id: number;
+  title: string;
+  author: {
+    id: number;
+    name: string;
+  };
+  preview: string;
+}
 
+export interface TradeNotificationData {
+  trade_id: number;
+  requester: {
+    id: number;
+    name: string;
+  };
+  original_shift: {
+    date: string;
+    time: string;
+  };
+  target_shift?: {
+    date: string;
+    time: string;
+  };
+}
+
+export interface ScheduleNotificationData {
+  schedule_id: number;
+  date: string;
+  old_time?: string;
+  new_time: string;
+  changed_by: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface NotificationItem {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  priority: NotificationPriority;
+  data:
+    | AnnouncementNotificationData
+    | TradeNotificationData
+    | ScheduleNotificationData;
+  is_read: boolean;
+  created_at: string;
+  read_at?: string;
+}
 export interface NotificationPayload {
   id: number;
   type: NotificationType;

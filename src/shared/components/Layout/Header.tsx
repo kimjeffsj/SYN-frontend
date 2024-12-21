@@ -3,12 +3,14 @@ import { Avatar } from "../Avatar";
 import NotificationCenter from "@/features/notifications/components/\bNotificationCenter";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   userRole: "admin" | "employee";
   onMenuClick: () => void;
 }
 export const Header: React.FC<HeaderProps> = ({ userRole, onMenuClick }) => {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
 
   return (
@@ -21,8 +23,11 @@ export const Header: React.FC<HeaderProps> = ({ userRole, onMenuClick }) => {
           >
             <Menu className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-xl font-semibold text-primary ml-4">
-            SYN - {userRole === "admin" ? "Admin" : "Employee"} Overview
+          <h1
+            className="text-xl font-semibold text-primary ml-4 cursor-pointer"
+            onClick={() => navigate("/dashboard")}
+          >
+            SYN - {userRole === "admin" ? "Admin" : "Employee"}
           </h1>
         </div>
 

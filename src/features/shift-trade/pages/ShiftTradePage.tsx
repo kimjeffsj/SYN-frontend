@@ -5,6 +5,7 @@ import {
   acceptGiveaway,
   cancelTradeRequest,
   createTradeResponse,
+  fetchTradeRequest,
   fetchTradeRequests,
   updateResponseStatus,
 } from "../slice/shiftTradeSlice";
@@ -15,9 +16,11 @@ import { ShiftTradeRequest } from "../types/shift-trade.type";
 import { TradeDetail } from "../components/TradeDetail";
 import { fetchMySchedules } from "@/features/schedule/slice/scheduleSlice";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 export default function ShiftTradePage() {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const { requests, isLoading, error } = useSelector(
     (state: RootState) => state.shiftTrade
   );
@@ -131,6 +134,28 @@ export default function ShiftTradePage() {
       toast.error("Failed to delete trade request");
     }
   };
+
+  useEffect(() => {
+    const handleTradeSelection = async (tradeId: number) => {
+      const found = requests.find((req) => req.id === tradeId);
+      if (found) {
+        setSelectedRequest(found);
+      } else {
+        try {
+          const response = await dispatch(fetchTradeRequest(tradeId)).unwrap();
+          setSelectedRequest(response);
+          dispatch(fetchTradeRequests({}));
+        } catch (error) {
+          console.error("Failed to load trade request:", error);
+          toast.error("Failed to load trade request details");
+        }
+      }
+    };
+
+    if (location.state?.from === "notification" && location.state?.id) {
+      handleTradeSelection(location.state.id);
+    }
+  }, [location.state, requests, dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
