@@ -6,11 +6,15 @@ import {
   UpdateEmployeeDto,
   Employee,
   EmployeeDetail,
+  DepartmentResponse,
+  PositionResponse,
 } from "../types/employee.type";
 
 interface EmployeeState {
   employees: Employee[];
   selectedEmployee: EmployeeDetail | null;
+  departments: DepartmentResponse[];
+  positions: PositionResponse[];
   isLoading: boolean;
   error: string | null;
 }
@@ -18,6 +22,8 @@ interface EmployeeState {
 const initialState: EmployeeState = {
   employees: [],
   selectedEmployee: null,
+  departments: [],
+  positions: [],
   isLoading: false,
   error: null,
 };

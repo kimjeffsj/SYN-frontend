@@ -60,19 +60,22 @@ export const employeeApi = {
 
   getDepartments: async (token: string) => {
     try {
-      console.log("API_URL:", import.meta.env.VITE_API_URL);
-
-      console.log("Request Headers:", {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      });
       const response = await axios.get<DepartmentResponse[]>(
-        `${API_URL}/admin/employees/departments`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API_URL}/admin/departments`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
       return response.data;
     } catch (error) {
-      console.error("Failed to get departments", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+        console.error("Error headers:", error.response?.headers);
+      }
       throw error;
     }
   },
@@ -80,19 +83,28 @@ export const employeeApi = {
   getPositions: async (token: string) => {
     try {
       const response = await axios.get<PositionResponse[]>(
-        `${API_URL}/admin/employees/positions`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API_URL}/admin/positions`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
       return response.data;
     } catch (error) {
-      console.error("Failed to get positions", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+      }
       throw error;
     }
   },
+
   addDepartment: async (token: string, name: string) => {
     try {
       const response = await axios.post<DepartmentResponse>(
-        `${API_URL}/admin/employees/departments`,
+        `${API_URL}/admin/departments`,
         {
           name: name,
           description: null, // PositionCreate 스키마에 맞춰서 전송
@@ -111,7 +123,7 @@ export const employeeApi = {
   addPosition: async (token: string, name: string) => {
     try {
       const response = await axios.post<PositionResponse>(
-        `${API_URL}/admin/employees/positions`,
+        `${API_URL}/admin/positions`,
         {
           name: name,
           description: null, // PositionCreate 스키마에 맞춰서 전송
