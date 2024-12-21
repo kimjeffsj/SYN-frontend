@@ -5,6 +5,7 @@ import {
   acceptGiveaway,
   cancelTradeRequest,
   createTradeResponse,
+  fetchTradeRequest,
   fetchTradeRequests,
   updateResponseStatus,
 } from "../slice/shiftTradeSlice";
@@ -42,8 +43,6 @@ export default function ShiftTradePage() {
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
     null
   );
-
-  const [selectedTradeId, setSelectedTradeId] = useState<number | null>(null);
 
   // Request Detail States
   const [selectedRequest, setSelectedRequest] =
@@ -137,19 +136,26 @@ export default function ShiftTradePage() {
   };
 
   useEffect(() => {
-    if (location.state?.openModal && location.state?.id) {
-      setSelectedTradeId(location.state);
-    }
-  }, [location.state]);
-
-  useEffect(() => {
-    if (selectedTradeId && requests.length > 0) {
-      const found = requests.find((req) => req.id === selectedTradeId);
+    const handleTradeSelection = async (tradeId: number) => {
+      const found = requests.find((req) => req.id === tradeId);
       if (found) {
         setSelectedRequest(found);
+      } else {
+        try {
+          const response = await dispatch(fetchTradeRequest(tradeId)).unwrap();
+          setSelectedRequest(response);
+          dispatch(fetchTradeRequests({}));
+        } catch (error) {
+          console.error("Failed to load trade request:", error);
+          toast.error("Failed to load trade request details");
+        }
       }
+    };
+
+    if (location.state?.from === "notification" && location.state?.id) {
+      handleTradeSelection(location.state.id);
     }
-  }, [selectedTradeId, requests]);
+  }, [location.state, requests, dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

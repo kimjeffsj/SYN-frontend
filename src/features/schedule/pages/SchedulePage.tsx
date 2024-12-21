@@ -5,6 +5,7 @@ import { ScheduleCalendar } from "../components/ScheduleCalendar";
 import { fetchMySchedules } from "../slice/scheduleSlice";
 import { useLocation } from "react-router-dom";
 import { ShiftDetail } from "../components/ShiftDetail";
+import { toast } from "react-toastify";
 
 export const SchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -22,11 +23,30 @@ export const SchedulePage = () => {
     dispatch(fetchMySchedules());
   }, [dispatch]);
 
+  // SchedulePage.tsx
   useEffect(() => {
-    if (location.state?.openModal && location.state?.id) {
-      setSelectedScheduleId(location.state.id);
+    const handleScheduleSelection = async (scheduleId: number) => {
+      // schedules에서 먼저 찾기
+      const found = schedules.find((s) => s.id === scheduleId);
+      if (found) {
+        setSelectedScheduleId(scheduleId);
+      } else {
+        // schedules에 없는 경우 전체 목록 다시 fetch
+        try {
+          await dispatch(fetchMySchedules()).unwrap();
+          setSelectedScheduleId(scheduleId);
+        } catch (error) {
+          console.error("Failed to load schedule:", error);
+          toast.error("Failed to load schedule details");
+        }
+      }
+    };
+
+    // notification에서 온 경우나 일반 선택의 경우
+    if (location.state?.from === "notification" && location.state?.id) {
+      handleScheduleSelection(location.state.id);
     }
-  }, [location.state]);
+  }, [location.state, schedules, dispatch]);
 
   return (
     <div className="container mx-auto px-4 py-8">

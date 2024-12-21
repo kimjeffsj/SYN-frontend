@@ -50,31 +50,55 @@ const NotificationCenter: React.FC = () => {
 
     setIsOpen(false);
 
-    switch (notification.type) {
-      case NotificationType.ANNOUNCEMENT:
-        if (notification.data && "announcement_id" in notification.data) {
-          navigate("/announcements", {
-            state: { openModal: true, id: notification.data.announcement_id },
-          });
-        }
-        break;
+    console.log("notification", notification);
 
-      case NotificationType.SHIFT_TRADE:
-        if (notification.data && "trade_id" in notification.data) {
-          navigate("/trades", {
-            state: { openModal: true, id: notification.data.trade_id },
-          });
-        }
-        break;
+    setTimeout(() => {
+      switch (notification.type) {
+        case NotificationType.ANNOUNCEMENT:
+          if (notification.data && "announcement_id" in notification.data) {
+            navigate("/announcements", {
+              state: {
+                openModal: true,
+                id: notification.data.announcement_id,
+                from: "notification",
+              },
+            });
+          }
+          break;
 
-      case NotificationType.SCHEDULE_CHANGE:
-        if (notification.data && "schedule_id" in notification.data) {
-          navigate("/schedule", {
-            state: { openModal: true, id: notification.data.schedule_id },
-          });
-        }
-        break;
-    }
+        case NotificationType.SHIFT_TRADE:
+          if (notification.data && "trade_id" in notification.data) {
+            navigate("/trades", {
+              state: {
+                openModal: true,
+                id: notification.data.trade_id,
+                from: "notification",
+              },
+            });
+          }
+          break;
+
+        case NotificationType.SCHEDULE_CHANGE:
+          if (
+            notification.data &&
+            "schedule" in notification.data &&
+            typeof notification.data.schedule === "object" &&
+            notification.data.schedule &&
+            "id" in notification.data.schedule
+          ) {
+            navigate("/schedule", {
+              state: {
+                openModal: true,
+
+                id: notification.data.schedule.id,
+
+                from: "notification",
+              },
+            });
+          }
+          break;
+      }
+    }, 100);
   };
 
   const getNotificationIcon = (type: NotificationType) => {
