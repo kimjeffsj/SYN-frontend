@@ -3,6 +3,7 @@ import { Schedule } from "../types/schedule.type";
 import { Calendar, Clock, FilePen, User } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { formatTime } from "../\butils/schedule.utils";
+import { StatusColor } from "@/shared/utils/status.utils";
 
 interface ShiftDetailProps {
   isOpen: boolean;
@@ -23,8 +24,7 @@ export const ShiftDetail = ({
         {/* Status Badge */}
         <div className="flex justify-between items-center">
           <StatusBadge
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            status={schedule.status.toLowerCase() as any}
+            status={schedule.status.toLowerCase() as StatusColor}
             size="lg"
           />
         </div>

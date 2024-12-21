@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { User, Clock } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { getShiftTypeStyle } from "../\butils/schedule.utils";
+import { useEffect } from "react";
 
 interface DailyEmployeeListProps {
   date: Date;
@@ -19,6 +20,10 @@ export const DailyEmployeeList = ({
       minute: "2-digit",
     });
   };
+
+  useEffect(() => {
+    console.log("Schedules updated:", schedules);
+  }, [schedules]);
 
   return (
     <div className="bg-white rounded-lg shadow">

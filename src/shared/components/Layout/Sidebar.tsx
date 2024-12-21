@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -21,6 +22,24 @@ interface SidebarProps {
 export function Sidebar({ userRole, isOpen, onClose }: SidebarProps) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const adminNavItems = [
     { icon: LayoutDashboard, label: "Overview", path: "/admin/dashboard" },
@@ -55,6 +74,7 @@ export function Sidebar({ userRole, isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
+        ref={sidebarRef}
         className={`
         fixed top-0 left-0 h-full w-64 bg-white border-r z-40
         transition-transform duration-300

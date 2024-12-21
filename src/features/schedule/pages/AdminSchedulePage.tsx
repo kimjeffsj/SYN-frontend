@@ -56,6 +56,10 @@ export const AdminSchedulePage = () => {
       selectedDate.toDateString()
   );
 
+  useEffect(() => {
+    console.log("Schedules updated:", schedules);
+  }, [schedules]);
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">

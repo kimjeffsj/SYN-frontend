@@ -18,6 +18,7 @@ import { MainLayout } from "@/shared/components/Layout/MainLayout";
 import { EmployeeDashboard } from "@/features/employee-dashboard/pages/EmployeeDashboard";
 import ShiftTradePage from "@/features/shift-trade/pages/ShiftTradePage";
 import AnnouncementsPage from "@/features/announcement/pages/AnnouncementPage";
+import { EmployeesPage } from "@/features/employee-management/pages/EmployeeManagementPage";
 
 function App() {
   const { user, isAuthenticated } = useSelector(
@@ -53,6 +54,7 @@ function App() {
                       path="announcements"
                       element={<AnnouncementsPage />}
                     />
+                    <Route path="employees" element={<EmployeesPage />} />
                   </Routes>
                 </ProtectedRoute>
               }

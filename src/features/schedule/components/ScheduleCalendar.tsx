@@ -24,7 +24,7 @@ import {
   subMonths,
 } from "date-fns";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { getStatusBgStyle } from "@/shared/utils/status.utils";
+import { getStatusBgStyle, StatusColor } from "@/shared/utils/status.utils";
 import { ShiftDetail } from "./ShiftDetail";
 
 type CalendarView = "week" | "month";
@@ -114,14 +114,12 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
       key={schedule.id}
       onClick={() => handleScheduleClick(schedule)}
       className={`${getStatusBgStyle(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        schedule.status.toLowerCase() as any
+        schedule.status.toLowerCase() as StatusColor
       )} p-2 rounded-lg mb-1 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
     >
       <div className="flex items-center justify-between">
         <StatusBadge
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status={schedule.status.toLowerCase() as any}
+          status={schedule.status.toLowerCase() as StatusColor}
           size="sm"
         />
       </div>
