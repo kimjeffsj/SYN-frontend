@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, LayoutList, Plus } from "lucide-react";
+import { LayoutGrid, LayoutList, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import {
@@ -7,7 +7,6 @@ import {
   updateScheduleStatus,
   deleteSchedule,
 } from "../slice/scheduleSlice";
-import ScheduleCalendar from "../components/ScheduleCalendar";
 import CreateScheduleForm from "../components/CreateScheduleForm";
 import { ScheduleStatus } from "../types/schedule.type";
 import ScheduleManagement from "../components/ScheduleManagement";
@@ -19,12 +18,16 @@ export const AdminSchedulePage = () => {
   const { schedules, isLoading, error } = useSelector(
     (state: RootState) => state.schedule
   );
-  const [view, setView] = useState<"calendar" | "table">("calendar");
+
+  // View States
+  const [view, setView] = useState<"overview" | "table">("overview");
+  const [overviewMode, setOverviewMode] = useState<"week" | "month">("week");
+
+  // Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Date States
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [activeSection, setActiveSection] = useState<
-    "stats" | "calendar" | "table"
-  >("stats");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
@@ -56,9 +59,23 @@ export const AdminSchedulePage = () => {
       selectedDate.toDateString()
   );
 
-  useEffect(() => {
-    console.log("Schedules updated:", schedules);
-  }, [schedules]);
+  const handleDateChange = (increment: boolean) => {
+    if (overviewMode === "week") {
+      setCurrentDate((prev) => {
+        const newDate = new Date(prev);
+        newDate.setDate(newDate.getDate() + (increment ? 7 : -7));
+        return newDate;
+      });
+    } else {
+      const newDate = new Date(currentDate);
+      if (increment) {
+        newDate.setMonth(newDate.getMonth() + 1);
+      } else {
+        newDate.setMonth(newDate.getMonth() - 1);
+      }
+      setCurrentDate(newDate);
+    }
+  };
 
   if (error) {
     return (
@@ -82,29 +99,29 @@ export const AdminSchedulePage = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* View Toggle */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          {/* View Type Toggle */}
+          <div className="flex items-center bg-white rounded-lg shadow border p-1">
             <button
-              onClick={() => setActiveSection("stats")}
-              className={`px-3 py-1.5 rounded-md flex items-center ${
-                activeSection === "stats"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+              onClick={() => setView("overview")}
+              className={`p-2 rounded ${
+                view === "overview"
+                  ? "bg-primary text-white"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
+              title="Overview"
             >
-              <Calendar className="w-4 h-4 mr-2" />
-              Overview
+              <LayoutGrid className="w-5 h-5" />
             </button>
             <button
               onClick={() => setView("table")}
-              className={`px-3 py-1.5 rounded-md flex items-center ${
+              className={`p-2 rounded ${
                 view === "table"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-primary text-white"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
+              title="List"
             >
-              <LayoutList className="w-4 h-4 mr-2" />
-              List
+              <LayoutList className="w-5 h-5" />
             </button>
           </div>
 
@@ -125,16 +142,19 @@ export const AdminSchedulePage = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {activeSection === "stats" && (
+          {view === "overview" && (
             <>
               <WeeklyStats
                 schedules={schedules}
-                pendingLeaves={0} // TODO: Implement pending leaves count
+                pendingLeaves={0}
                 currentDate={currentDate}
                 onDateSelect={(date) => {
                   setCurrentDate(date);
                   setSelectedDate(date);
                 }}
+                viewMode={overviewMode}
+                onViewModeChange={setOverviewMode}
+                onDateChange={handleDateChange}
               />
               <DailyEmployeeList
                 date={selectedDate}
@@ -142,21 +162,16 @@ export const AdminSchedulePage = () => {
               />
             </>
           )}
-          <div className="bg-white rounded-lg shadow">
-            {activeSection === "calendar" ? (
-              <ScheduleCalendar
-                schedules={schedules}
-                currentDate={currentDate}
-                onDateChange={setCurrentDate}
-              />
-            ) : activeSection === "table" ? (
+
+          {view === "table" && (
+            <div className="bg-white rounded-lg shadow">
               <ScheduleManagement
                 schedules={schedules}
                 onStatusChange={handleStatusChange}
                 onDelete={handleDelete}
               />
-            ) : null}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
