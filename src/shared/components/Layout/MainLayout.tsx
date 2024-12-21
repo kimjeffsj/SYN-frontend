@@ -27,7 +27,7 @@ export function MainLayout({ children, userRole }: MainLayoutProps) {
         closeOnClick
         pauseOnHover
       />
-      <div className="flex">
+      <div className="flex relative">
         <Sidebar
           userRole={userRole}
           isOpen={isSidebarOpen}

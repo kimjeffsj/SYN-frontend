@@ -1,5 +1,6 @@
 import axiosInstance from "@/services/axios-config";
 import { LoginCredentials, LoginResponse } from "../types/auth.type";
+import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,7 +10,7 @@ export const authApi = {
     formData.append("username", credential.email);
     formData.append("password", credential.password);
 
-    const response = await axiosInstance.post<LoginResponse>(
+    const response = await axios.post<LoginResponse>(
       `${API_URL}/auth/login`,
       formData
     );
