@@ -4,7 +4,8 @@ import { useDispatch } from "react-redux";
 import { CreateScheduleDto, ShiftType } from "../types/schedule.type";
 import { adminCreateSchedule } from "../slice/scheduleSlice";
 import { Modal } from "@/shared/components/Modal";
-import { Calendar, Users } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { EmployeeCombobox } from "./EmployeeCombobo";
 
 interface CreateScheduleFormProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
 
   const [formData, setFormData] = useState<CreateScheduleDto>({
     user_id: 0,
@@ -34,6 +36,14 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
     is_repeating: false,
     repeat_pattern: "",
   });
+
+  const handleEmployeeSelect = (employeeId: number, employeeName: string) => {
+    setSelectedEmployeeName(employeeName);
+    setFormData((prev) => ({
+      ...prev,
+      user_id: employeeId,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,21 +112,12 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
         {/* Employee Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            <Users className="w-4 h-4 inline-block mr-1" />
             Employee
           </label>
-          <input
-            type="number"
-            value={formData.user_id || ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                user_id: parseInt(e.target.value) || 0,
-              }))
-            }
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary/20"
-            placeholder="Employee ID"
-            required
+          <EmployeeCombobox
+            value={selectedEmployeeName}
+            onChange={handleEmployeeSelect}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -186,6 +187,7 @@ export const CreateScheduleForm: React.FC<CreateScheduleFormProps> = ({
             type="button"
             onClick={onClose}
             className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+            disabled={isSubmitting}
           >
             Cancel
           </button>
