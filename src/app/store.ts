@@ -7,6 +7,7 @@ import announcementReducer from "@/features/announcement/slice/announcementSlice
 import notificationReducer, {
   handleWebSocketMessage,
 } from "@/features/notifications/slice/notificationSlice";
+import leaveReducer from "@/features/leave/slice/leaveSlice";
 import employeeReducer from "@/features/employee-management/slice/employeeSlice";
 
 import { Action, configureStore, Middleware } from "@reduxjs/toolkit";
@@ -58,6 +59,7 @@ export const store = configureStore({
     announcement: announcementReducer,
     notification: notificationReducer,
     employees: employeeReducer,
+    leave: leaveReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(wsMiddleware),
