@@ -162,16 +162,16 @@ export default function ShiftTradePage() {
   }, [location.state, requests, dispatch]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <div className="flex justify-between items-start mb-6">
+        <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Shift Trade Board
               </h1>
-              <p className="text-gray-500 mt-1">
+              <p className="text-sm sm:text-base text-gray-500 mt-1">
                 Request or respond to shift trades
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function ShiftTradePage() {
                 setSelectedScheduleId(1); // TODO: Replace with actual schedule ID
                 setShowNewRequestModal(true);
               }}
-              className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+              className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
             >
               <Plus className="w-5 h-5 mr-2" />
               New Request
@@ -188,8 +188,8 @@ export default function ShiftTradePage() {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
@@ -201,25 +201,27 @@ export default function ShiftTradePage() {
                 />
               </div>
             </div>
-            <select
-              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20"
-              value={filters.status}
-              onChange={(e) => handleFilterChange("status", e.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="OPEN">Open</option>
-              <option value="PENDING">Pending</option>
-              <option value="COMPLETED">Completed</option>
-            </select>
-            <select
-              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20"
-              value={filters.type}
-              onChange={(e) => handleFilterChange("type", e.target.value)}
-            >
-              <option value="all">All Types</option>
-              <option value="TRADE">Trade</option>
-              <option value="GIVEAWAY">Giveaway</option>
-            </select>
+            <div className="flex flex-row gap-2 sm:gap-4">
+              <select
+                className="flex-1 sm:flex-none border rounded-lg px-2 sm:px-4 py-2 focus:ring-2 focus:ring-primary/20"
+                value={filters.status}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="OPEN">Open</option>
+                <option value="PENDING">Pending</option>
+                <option value="COMPLETED">Completed</option>
+              </select>
+              <select
+                className="flex-1 sm:flex-none border rounded-lg px-2 sm:px-4 py-2 focus:ring-2 focus:ring-primary/20"
+                value={filters.type}
+                onChange={(e) => handleFilterChange("type", e.target.value)}
+              >
+                <option value="all">All Types</option>
+                <option value="TRADE">Trade</option>
+                <option value="GIVEAWAY">Giveaway</option>
+              </select>
+            </div>
           </div>
         </div>
 

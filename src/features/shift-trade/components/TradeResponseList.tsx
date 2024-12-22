@@ -27,13 +27,13 @@ const TradeResponseList: React.FC<TradeResponseListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* scroll container */}
       <div className="max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         {responses.map((response) => (
-          <div key={response.id} className="border rounded-lg p-4">
+          <div key={response.id} className="border rounded-lg p-3 sm:p-4">
             {/* Respondent Info */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                   <User className="w-5 h-5 text-gray-600" />
@@ -85,11 +85,11 @@ const TradeResponseList: React.FC<TradeResponseListProps> = ({
 
             {/* Action Buttons */}
             {isRequester && response.status === "PENDING" && (
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2 mt-4">
                 <button
                   onClick={() => onAcceptResponse(response.id)}
                   disabled={isSubmitting}
-                  className="flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                  className="flex items-center justify-center px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                 >
                   <span className="mr-1">✓</span>
                   Accept
@@ -97,7 +97,7 @@ const TradeResponseList: React.FC<TradeResponseListProps> = ({
                 <button
                   onClick={() => onRejectResponse(response.id)}
                   disabled={isSubmitting}
-                  className="flex items-center px-3 py-1.5 text-sm border border-red-600 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                  className="flex items-center justify-center px-3 py-1.5 text-sm border border-red-600 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50"
                 >
                   <span className="mr-1">×</span>
                   Reject

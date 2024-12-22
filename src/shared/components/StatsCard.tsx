@@ -20,13 +20,15 @@ export default function StatsCard({
   iconClassName,
 }: StatsCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-card p-6">
+    <div className="bg-white rounded-lg shadow-card p-4 sm:p-6">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-gray-500 text-sm">{title}</p>
-          <h3 className="text-2xl font-bold mt-2">{value}</h3>
+          <p className="text-gray-500 text-xs sm:text-sm">{title}</p>
+          <h3 className="text-xl sm:text-2xl font-bold mt-1 sm:mt-2">
+            {value}
+          </h3>
           {trend && (
-            <div className="flex items-center mt-2 text-sm">
+            <div className="flex items-center mt-1 sm:mt-2 text-xs sm:text-sm">
               <span
                 className={`${
                   trend.isPositive ? "text-success-500" : "text-error-500"
@@ -38,8 +40,8 @@ export default function StatsCard({
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${iconClassName}`}>
-          <Icon className="w-6 h-6" />
+        <div className={`p-2 sm:p-3 rounded-lg ${iconClassName}`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
       </div>
     </div>
