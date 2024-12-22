@@ -3,7 +3,7 @@ import {
   CreateLeaveRequest,
   LeaveRequest,
   LeaveRequestList,
-  UpdateLeaveRequest,
+  LeaveRequestUpdate,
 } from "../types/leave.type";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -59,16 +59,35 @@ export const leaveApi = {
   processLeaveRequest: async (
     token: string,
     id: number,
-    data: UpdateLeaveRequest
+    data: LeaveRequestUpdate
   ) => {
-    const response = await axiosInstance.patch<LeaveRequest>(
-      `${API_URL}/leave/${id}`,
-      data,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    return response.data;
+    try {
+      const originalRequest = await leaveApi.getLeaveRequest(token, id);
+
+      const formattedData: LeaveRequestUpdate = {
+        leave_type: originalRequest.leave_type,
+        start_date: originalRequest.start_date,
+        end_date: originalRequest.end_date,
+        reason: originalRequest.reason,
+        status: data.status,
+        comment: data.comment || undefined,
+      };
+
+      const response = await axiosInstance.patch<LeaveRequest>(
+        `${API_URL}/leave/${id}`,
+        formattedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error in processLeaveRequest:", error);
+      throw error;
+    }
   },
 
   // Cancel leave request

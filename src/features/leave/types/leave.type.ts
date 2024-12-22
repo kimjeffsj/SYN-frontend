@@ -34,11 +34,14 @@ export interface CreateLeaveRequest {
   reason: string;
 }
 
-export interface UpdateLeaveRequest {
+export interface LeaveRequestUpdate {
   status: LeaveStatus;
   comment?: string;
+  leave_type?: LeaveType;
+  start_date?: string;
+  end_date?: string;
+  reason?: string;
 }
-
 export interface LeaveRequestState {
   requests: LeaveRequest[];
   selectedRequest: LeaveRequest | null;

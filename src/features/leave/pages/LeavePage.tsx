@@ -9,9 +9,11 @@ import { Plus, Search } from "lucide-react";
 import { LeaveRequestList } from "../components/LeaveRequestList";
 import { LeaveRequestForm } from "../components/LeaveRequestForm";
 import { LeaveRequestDetail } from "../components/LeaveRequestDetail";
+import { Navigate } from "react-router-dom";
 
 export const LeavePage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.auth);
   const { requests, isLoading, error } = useSelector(
     (state: RootState) => state.leave
   );
@@ -53,6 +55,10 @@ export const LeavePage = () => {
   };
 
   const filteredRequests = filterLeaveRequests(requests, filters);
+
+  if (user?.role === "admin") {
+    return <Navigate to={"/admin/leave"} replace />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

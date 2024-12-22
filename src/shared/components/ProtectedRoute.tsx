@@ -28,11 +28,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (requireAdmin && user.role !== "admin") {
-    console.log("Not admin, redirecting:", {
-      requireAdmin,
-      userRole: user.role,
-    });
-
     return <Navigate to="/dashboard" replace />;
   }
 

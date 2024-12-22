@@ -50,8 +50,6 @@ const NotificationCenter: React.FC = () => {
 
     setIsOpen(false);
 
-    console.log("notification", notification);
-
     setTimeout(() => {
       switch (notification.type) {
         case NotificationType.ANNOUNCEMENT:
@@ -67,36 +65,15 @@ const NotificationCenter: React.FC = () => {
           break;
 
         case NotificationType.SHIFT_TRADE:
-          if (notification.data && "trade_id" in notification.data) {
-            navigate("/trades", {
-              state: {
-                openModal: true,
-                id: notification.data.trade_id,
-                from: "notification",
-              },
-              replace: true,
-            });
-          }
+          navigate("/trades");
           break;
 
         case NotificationType.SCHEDULE_CHANGE:
-          if (
-            notification.data &&
-            (("schedule" in notification.data &&
-              notification.data.schedule?.id) ||
-              ("schedule_id" in notification.data &&
-                notification.data.schedule_id))
-          ) {
-            const scheduleId =
-              notification.data.schedule?.id || notification.data.schedule_id;
-            navigate("/schedule", {
-              state: {
-                openModal: true,
-                id: scheduleId,
-                from: "notification",
-              },
-            });
-          }
+          navigate("/schedule");
+          break;
+
+        case NotificationType.LEAVE_REQUEST:
+          navigate("/leave");
           break;
       }
     }, 100);
@@ -184,45 +161,46 @@ const NotificationCenter: React.FC = () => {
           </div>
 
           {/* Notification List */}
-          <div className="max-h-[calc(100vh-120px)] sm:max-h-[600px] overflow-y-auto"></div>
-          {notifications.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No notifications
-            </div>
-          ) : (
-            notifications.map((notification) => (
-              <div
-                key={notification.id}
-                onClick={() => handleNotificationClick(notification)}
-                className={`px-4 py-3 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
-                  !notification.is_read ? "bg-blue-50" : ""
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {getNotificationIcon(notification.type)}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">
-                      {notification.title}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                      {getNotificationPreview(notification)}
-                    </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-gray-400">
-                        {format(new Date(notification.created_at), "PPp")}
-                      </span>
-                      <StatusBadge
-                        status={
-                          notification.priority.toLowerCase() as StatusColor
-                        }
-                        size="sm"
-                      />
+          <div className="max-h-[calc(100vh-120px)] sm:max-h-[600px] overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-6 text-center text-gray-500">
+                No notifications
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={`px-4 py-3 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
+                    !notification.is_read ? "bg-blue-50" : ""
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    {getNotificationIcon(notification.type)}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">
+                        {notification.title}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                        {getNotificationPreview(notification)}
+                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-gray-400">
+                          {format(new Date(notification.created_at), "PPp")}
+                        </span>
+                        <StatusBadge
+                          status={
+                            notification.priority.toLowerCase() as StatusColor
+                          }
+                          size="sm"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

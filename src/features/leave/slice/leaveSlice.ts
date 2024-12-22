@@ -6,7 +6,7 @@ import {
   CreateLeaveRequest,
   LeaveRequest,
   LeaveRequestState,
-  UpdateLeaveRequest,
+  LeaveRequestUpdate,
 } from "../types/leave.type";
 
 const initialState: LeaveRequestState = {
@@ -79,21 +79,20 @@ export const createLeaveRequest = createAsyncThunk(
 export const processLeaveRequest = createAsyncThunk(
   "leave/process",
   async (
-    { id, data }: { id: number; data: UpdateLeaveRequest },
+    { id, data }: { id: number; data: LeaveRequestUpdate },
     { getState, rejectWithValue }
   ) => {
     try {
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
 
-      return await leaveApi.processLeaveRequest(token, id, data);
+      const response = await leaveApi.processLeaveRequest(token, id, data);
+      return response;
     } catch (error) {
-      if (error instanceof AxiosError) {
-        return rejectWithValue(
-          error.response?.data?.detail || "Failed to process leave request"
-        );
-      }
-      return rejectWithValue("An unexpected error occurred");
+      console.error("Error details:", error);
+      return rejectWithValue(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     }
   }
 );
@@ -153,7 +152,20 @@ const leaveSlice = createSlice({
       })
       .addCase(fetchMyLeaveRequests.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.requests = action.payload;
+        if (Array.isArray(action.payload)) {
+          state.requests = action.payload;
+        } else if (action.payload) {
+          const leaveRequest = action.payload as LeaveRequest;
+          const existingIndex = state.requests.findIndex(
+            (req) => req.id === leaveRequest.id
+          );
+
+          if (existingIndex >= 0) {
+            state.requests[existingIndex] = leaveRequest;
+          } else {
+            state.requests.push(leaveRequest);
+          }
+        }
       })
       .addCase(fetchMyLeaveRequests.rejected, (state, action) => {
         state.isLoading = false;
