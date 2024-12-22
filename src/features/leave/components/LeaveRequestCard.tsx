@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { LeaveRequest } from "../types/leave.type";
-import { formatDates } from "../utils/leave.utils";
+import { formatDates, formatLeaveType } from "../utils/leave.utils";
 import { getStatusBgStyle, StatusColor } from "@/shared/utils/status.utils";
 import { Calendar, Clock, User } from "lucide-react";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -62,7 +62,9 @@ export const LeaveRequestCard = ({
               size="sm"
             />
             <StatusBadge
-              status={request.leave_type.toLowerCase() as StatusColor}
+              status={
+                formatLeaveType(request.leave_type).toLowerCase() as StatusColor
+              }
               size="sm"
             />
           </div>

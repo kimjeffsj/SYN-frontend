@@ -77,3 +77,11 @@ export const filterLeaveRequests = (
     return true;
   });
 };
+
+export const formatLeaveType = (type: string): string => {
+  const formatMap: Record<string, string> = {
+    VACATION: "Vacation",
+    ON_LEAVE: "On Leave",
+  };
+  return formatMap[type] || type;
+};

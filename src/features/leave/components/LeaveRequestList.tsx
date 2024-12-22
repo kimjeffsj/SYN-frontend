@@ -5,13 +5,11 @@ import { LeaveRequestCard } from "./LeaveRequestCard";
 interface LeaveRequestListProps {
   requests: LeaveRequest[];
   onRequestClick: (request: LeaveRequest) => void;
-  // isAdmin?: boolean;
 }
 
 export const LeaveRequestList: React.FC<LeaveRequestListProps> = ({
   requests,
   onRequestClick,
-  // isAdmin = false,
 }) => {
   return (
     <div className="space-y-4">

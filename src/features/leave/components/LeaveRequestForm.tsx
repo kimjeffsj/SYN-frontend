@@ -80,7 +80,7 @@ export const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
                   }
                 `}
               >
-                {type.toLowerCase().replace("_", " ")}
+                {type.replace("_", " ").toLowerCase()}
               </button>
             ))}
           </div>
