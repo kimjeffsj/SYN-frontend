@@ -163,7 +163,7 @@ export const BulkScheduleModal: React.FC<BulkScheduleModalProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Shift Type
           </label>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
             {shiftTypes.map((type) => (
               <button
                 key={type.value}
@@ -182,11 +182,11 @@ export const BulkScheduleModal: React.FC<BulkScheduleModalProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-3 pt-4 border-t">
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+            className="w-full sm:w-auto px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
             disabled={isSubmitting}
           >
             Cancel
@@ -194,7 +194,7 @@ export const BulkScheduleModal: React.FC<BulkScheduleModalProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || selectedEmployees.length === 0}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
           >
             {isSubmitting ? "Creating..." : "Create Schedules"}
           </button>

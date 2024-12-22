@@ -49,13 +49,15 @@ export const SchedulePage = () => {
   }, [location.state, schedules, dispatch]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Schedules</h1>
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="flex justify-between items-center mb-4 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Schedules
+        </h1>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+        <div className="bg-red-50 text-red-600 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
           {error}
         </div>
       )}

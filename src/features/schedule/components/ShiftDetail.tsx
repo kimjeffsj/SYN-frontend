@@ -20,7 +20,7 @@ export const ShiftDetail = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Shift Details">
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 sm:p-6">
         {/* Status Badge */}
         <div className="flex justify-between items-center">
           <StatusBadge
@@ -72,10 +72,10 @@ export const ShiftDetail = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end pt-4 border-t mt-auto">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+            className="w-full sm:w-auto px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
           >
             Close
           </button>

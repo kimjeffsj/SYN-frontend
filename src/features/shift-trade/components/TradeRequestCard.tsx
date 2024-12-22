@@ -64,21 +64,21 @@ export const TradeRequestCard = ({
       className={`bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow ${className}`}
       onClick={() => onClick?.(request.id)}
     >
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
+          <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
               <User className="w-5 h-5 text-gray-600" />
             </div>
 
             <div>
-              <div className="flex items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                 <span className="font-medium">{request.author.name}</span>
                 {request.author.position && (
                   <>
-                    <span className="mx-2 text-gray-300">•</span>
-                    <span className="text-gray-500">
+                    <span className="hidden sm:inline text-gray-300">•</span>
+                    <span className="text-gray-500 text-sm">
                       {request.author.position}
                     </span>
                   </>
@@ -88,7 +88,7 @@ export const TradeRequestCard = ({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <StatusBadge
               // TODO: Fix type any
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
