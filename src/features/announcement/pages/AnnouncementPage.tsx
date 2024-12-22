@@ -146,13 +146,15 @@ export default function AnnouncementsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-        <div className="flex justify-between items-start mb-6">
+      <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Announcements</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Announcements
+            </h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">
               {isAdmin
                 ? "Manage and create company announcements"
                 : "View company announcements"}
@@ -161,7 +163,7 @@ export default function AnnouncementsPage() {
           {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+              className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
             >
               <Plus className="w-5 h-5 mr-2" />
               New Announcement
@@ -170,8 +172,8 @@ export default function AnnouncementsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -184,7 +186,7 @@ export default function AnnouncementsPage() {
             </div>
           </div>
           <select
-            className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20"
+            className="w-full sm:w-auto border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/20"
             value={priorityFilter}
             onChange={(e) =>
               setPriorityFilter(e.target.value as "all" | AnnouncementPriority)

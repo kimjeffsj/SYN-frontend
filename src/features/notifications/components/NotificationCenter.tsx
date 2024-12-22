@@ -74,6 +74,7 @@ const NotificationCenter: React.FC = () => {
                 id: notification.data.trade_id,
                 from: "notification",
               },
+              replace: true,
             });
           }
           break;
@@ -81,17 +82,17 @@ const NotificationCenter: React.FC = () => {
         case NotificationType.SCHEDULE_CHANGE:
           if (
             notification.data &&
-            "schedule" in notification.data &&
-            typeof notification.data.schedule === "object" &&
-            notification.data.schedule &&
-            "id" in notification.data.schedule
+            (("schedule" in notification.data &&
+              notification.data.schedule?.id) ||
+              ("schedule_id" in notification.data &&
+                notification.data.schedule_id))
           ) {
+            const scheduleId =
+              notification.data.schedule?.id || notification.data.schedule_id;
             navigate("/schedule", {
               state: {
                 openModal: true,
-
-                id: notification.data.schedule.id,
-
+                id: scheduleId,
                 from: "notification",
               },
             });
@@ -201,7 +202,7 @@ const NotificationCenter: React.FC = () => {
                       <p className="text-sm font-medium text-gray-900">
                         {notification.title}
                       </p>
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-3">
                         {getNotificationPreview(notification)}
                       </p>
                       <div className="flex items-center justify-between mt-2">

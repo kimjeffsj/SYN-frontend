@@ -152,7 +152,11 @@ export default function ShiftTradePage() {
       }
     };
 
-    if (location.state?.from === "notification" && location.state?.id) {
+    if (
+      location.state?.from === "notification" &&
+      // location.state?.id &&
+      location.state?.openModal
+    ) {
       handleTradeSelection(location.state.id);
     }
   }, [location.state, requests, dispatch]);

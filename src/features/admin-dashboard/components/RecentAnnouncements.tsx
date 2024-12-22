@@ -11,9 +11,11 @@ export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="p-6 border-b">
+      <div className="p-4 sm:p-6 border-b">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-900">Announcements</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+            Announcements
+          </h2>
           <button
             onClick={onViewAll}
             className="text-primary hover:text-primary/80 text-sm font-medium flex items-center"
@@ -28,10 +30,10 @@ export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
         {announcements.map((announcement) => (
           <div
             key={announcement.id}
-            className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+            className="p-3 sm:p-4 hover:bg-gray-50 cursor-pointer transition-colors"
             onClick={() => onAnnouncementClick(announcement.id)}
           >
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-3 sm:space-x-4">
               <div
                 className={`p-2 rounded-lg ${getStatusBgStyle(
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,8 +47,8 @@ export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-sm font-medium text-gray-900 truncate">
+                <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                  <h3 className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                     {announcement.title}
                   </h3>
                   {announcement.isNew && (
@@ -57,7 +59,7 @@ export const RecentAnnouncements: React.FC<RecentAnnouncementsProps> = ({
                     />
                   )}
                 </div>
-                <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                <p className="mt-1 text-xs sm:text-sm text-gray-500 line-clamp-2">
                   {announcement.content}
                 </p>
                 <div className="mt-1 flex items-center space-x-2">

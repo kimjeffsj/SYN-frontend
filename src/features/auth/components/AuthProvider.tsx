@@ -1,4 +1,3 @@
-// features/auth/components/AuthProvider.tsx
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";

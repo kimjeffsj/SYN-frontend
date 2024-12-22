@@ -102,11 +102,16 @@ export interface TradeNotificationData {
 }
 
 export interface ScheduleNotificationData {
-  schedule_id: number;
-  date: string;
-  old_time?: string;
-  new_time: string;
-  changed_by: {
+  schedule_id?: number;
+  schedule?: {
+    id: number;
+    start_time: string;
+    end_time: string;
+    status: string;
+  };
+  date?: string;
+  time?: string;
+  changed_by?: {
     id: number;
     name: string;
   };
