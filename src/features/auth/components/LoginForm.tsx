@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LoginCredentials } from "../types/auth.type";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
@@ -15,6 +15,37 @@ export const LoginForm = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
+
+  // Handle demo login event
+  useEffect(() => {
+    const handleDemoLogin = (e: CustomEvent) => {
+      const demoCredentials = e.detail;
+      setCredentials(demoCredentials);
+      handleLogin(demoCredentials);
+    };
+
+    document.addEventListener("demo-login", handleDemoLogin as EventListener);
+    return () => {
+      document.removeEventListener(
+        "demo-login",
+        handleDemoLogin as EventListener
+      );
+    };
+  }, []);
+
+  const handleLogin = async (loginCredentials: LoginCredentials) => {
+    try {
+      const action = await dispatch(login(loginCredentials)).unwrap();
+
+      if (action.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

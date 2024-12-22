@@ -38,6 +38,14 @@ export const AdminLeavePage = () => {
   };
 
   const filteredRequests = requests.filter((request) => {
+    // Status filter based on active tab
+    if (activeTab === "completed" && request.status === "PENDING") {
+      return false;
+    }
+    if (activeTab === "pending" && request.status !== "PENDING") {
+      return false;
+    }
+
     // Type filter
     if (
       filters.type !== "all" &&
