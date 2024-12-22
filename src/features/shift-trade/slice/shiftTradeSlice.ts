@@ -131,12 +131,6 @@ export const updateResponseStatus = createAsyncThunk(
     },
     { getState, rejectWithValue }
   ) => {
-    console.log("updateResponseStatus thunk called:", {
-      tradeId,
-      responseId,
-      status,
-    });
-
     try {
       const token = (getState() as RootState).auth.accessToken;
       if (!token) throw new Error("No access token");
@@ -147,7 +141,6 @@ export const updateResponseStatus = createAsyncThunk(
         responseId,
         status
       );
-      console.log("API call successful:", response);
 
       return { tradeId, response };
     } catch (error) {

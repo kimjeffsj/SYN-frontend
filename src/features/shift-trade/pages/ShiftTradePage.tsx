@@ -98,25 +98,16 @@ export default function ShiftTradePage() {
     responseId: number,
     status: "ACCEPTED" | "REJECTED"
   ) => {
-    console.log("ShiftTradePage - handleUpdateResponseStatus", {
-      responseId,
-      status,
-    });
-
-    if (!selectedRequest) {
-      console.log("No selected request");
-      return;
-    }
+    if (!selectedRequest) return;
 
     try {
-      const result = await dispatch(
+      await dispatch(
         updateResponseStatus({
           tradeId: selectedRequest.id,
           responseId,
           status,
         })
       ).unwrap();
-      console.log("Status update dispatch result:", result);
 
       await dispatch(fetchTradeRequests({}));
     } catch (error) {

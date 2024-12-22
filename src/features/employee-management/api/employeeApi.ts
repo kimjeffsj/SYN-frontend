@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   Employee,
   EmployeeDetail,
@@ -74,13 +73,8 @@ export const employeeApi = {
         }
       );
       return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-        console.error("Error headers:", error.response?.headers);
-      }
-      throw error;
+    } catch {
+      throw new Error("Failed to fetch departments");
     }
   },
 
@@ -96,12 +90,8 @@ export const employeeApi = {
         }
       );
       return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-      }
-      throw error;
+    } catch {
+      throw new Error("Failed to fetch positions");
     }
   },
 
@@ -130,7 +120,7 @@ export const employeeApi = {
         `${API_URL}/admin/positions`,
         {
           name: name,
-          description: null, // PositionCreate 스키마에 맞춰서 전송
+          description: null,
         },
         {
           headers: { Authorization: `Bearer ${token}` },

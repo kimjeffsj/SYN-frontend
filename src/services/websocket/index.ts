@@ -48,7 +48,6 @@ class WebSocketService {
       const wsUrl = `${protocol}//${
         import.meta.env.VITE_WS_URL
       }/ws/notifications/${user.id}?token=${token}`;
-      console.log("Connecting to WebSocket:", wsUrl);
 
       this.ws = new WebSocket(wsUrl);
       this.setupEventHandlers();
@@ -63,7 +62,6 @@ class WebSocketService {
     if (!this.ws) return;
 
     this.ws.onopen = () => {
-      console.log("WebSocket connected successfully");
       this.reconnectAttempts = 0;
       this.processPendingMessages();
     };
@@ -138,7 +136,6 @@ class WebSocketService {
     }
 
     this.reconnectTimer = setTimeout(() => {
-      console.log(`Attempting to reconnect... (${this.reconnectAttempts + 1})`);
       this.reconnectAttempts++;
       this.connect();
     }, this.calculateReconnectTimeout());

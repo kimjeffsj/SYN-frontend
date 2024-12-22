@@ -87,7 +87,6 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
     try {
       setIsSubmitting(true);
       setError(null);
-      console.log("Submitting form data:", formData); // 디버깅용
 
       await onSubmit(formData);
       onClose();

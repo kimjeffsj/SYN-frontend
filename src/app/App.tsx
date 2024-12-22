@@ -19,6 +19,8 @@ import { EmployeeDashboard } from "@/features/employee-dashboard/pages/EmployeeD
 import ShiftTradePage from "@/features/shift-trade/pages/ShiftTradePage";
 import AnnouncementsPage from "@/features/announcement/pages/AnnouncementPage";
 import { EmployeesPage } from "@/features/employee-management/pages/EmployeeManagementPage";
+import { LeavePage } from "@/features/leave/pages/LeavePage";
+import { AdminLeavePage } from "@/features/leave/pages/AdminLeavePage";
 
 function App() {
   const { user, isAuthenticated } = useSelector(
@@ -55,6 +57,7 @@ function App() {
                       element={<AnnouncementsPage />}
                     />
                     <Route path="employees" element={<EmployeesPage />} />
+                    <Route path="leave" element={<AdminLeavePage />} />
                   </Routes>
                 </ProtectedRoute>
               }
@@ -65,6 +68,7 @@ function App() {
             <Route path="schedule" element={<SchedulePage />} />
             <Route path="trades" element={<ShiftTradePage />} />
             <Route path="announcements" element={<AnnouncementsPage />} />
+            <Route path="leave" element={<LeavePage />} />
           </Route>
 
           {/* Fallback route */}

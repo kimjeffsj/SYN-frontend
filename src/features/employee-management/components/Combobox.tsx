@@ -53,7 +53,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
             ? await employeeApi.getDepartments(accessToken)
             : await employeeApi.getPositions(accessToken);
 
-        console.log("Fetched options:", fetchedOptions);
         const optionNames = fetchedOptions.map((option) => option.name);
         setOptions(optionNames);
       } catch (error) {

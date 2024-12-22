@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut,
   ArrowLeftRight,
+  Briefcase,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store";
@@ -47,6 +48,7 @@ export function Sidebar({ userRole, isOpen, onClose }: SidebarProps) {
     { icon: ArrowLeftRight, label: "Shift Trades", path: "/admin/trades" },
     { icon: Users, label: "Employees Management", path: "/admin/employees" },
     { icon: FileText, label: "Announcements", path: "/admin/announcements" },
+    { icon: Briefcase, label: "Leave Requests", path: "/leave" },
   ];
 
   const employeeNavItems = [
@@ -54,6 +56,7 @@ export function Sidebar({ userRole, isOpen, onClose }: SidebarProps) {
     { icon: Calendar, label: "My schedule", path: "/schedule" },
     { icon: ArrowLeftRight, label: "Shift Trades", path: "/trades" },
     { icon: FileText, label: "Announcements", path: "/announcements" },
+    { icon: Briefcase, label: "Leave Requests", path: "/leave" },
   ];
 
   const navItems = userRole === "admin" ? adminNavItems : employeeNavItems;
