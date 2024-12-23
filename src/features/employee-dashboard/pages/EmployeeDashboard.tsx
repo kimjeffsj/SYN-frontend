@@ -1,7 +1,7 @@
 import { AppDispatch, RootState } from "@/app/store";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
   fetchDashboardData,
   markAnnouncementAsRead,
@@ -14,6 +14,7 @@ import { Briefcase, Calendar, CheckCircle2, Clock } from "lucide-react";
 export const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.auth);
   const { employee, stats, weeklySchedule, announcements, isLoading, error } =
     useSelector((state: RootState) => state.employeeDashboard);
 
@@ -24,6 +25,10 @@ export const EmployeeDashboard = () => {
   const handleAnnouncementClick = (id: number) => {
     dispatch(markAnnouncementAsRead(id));
   };
+
+  if (user?.role === "admin") {
+    return <Navigate to={"/admin/dashboard"} replace />;
+  }
 
   if (isLoading) {
     return (
