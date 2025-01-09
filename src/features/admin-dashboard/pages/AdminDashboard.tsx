@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { DashboardStats } from "../components/DashboardStats";
-import { MainLayout } from "@/shared/components/Layout/MainLayout";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import { fetchDashboardStats } from "../slice/adminDashboardSlice";
@@ -17,20 +16,14 @@ export function AdminDashboard() {
 
   if (isLoading || !stats) {
     return (
-      <MainLayout userRole="admin">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
-        </div>
-      </MainLayout>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+      </div>
     );
   }
 
   if (error) {
-    return (
-      <MainLayout userRole="admin">
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
-      </MainLayout>
-    );
+    return <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>;
   }
 
   return (
