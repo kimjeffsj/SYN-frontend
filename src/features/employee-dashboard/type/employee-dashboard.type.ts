@@ -50,21 +50,21 @@ export interface EmployeeResponse {
   user: Employee;
   currentSchedule: Schedule | null;
 }
-interface DashboardStats {
+export interface DashboardStats {
   totalHours: number;
   completedShifts: number;
   upcomingShifts: number;
   leaveBalance: number;
 }
 
-interface DashboardEmployee {
+export interface DashboardEmployee {
   id: number;
   name: string;
   position: string | null;
   department: string | null;
 }
 
-interface Schedule {
+export interface Schedule {
   id: number;
   start_time: string;
   end_time: string;
