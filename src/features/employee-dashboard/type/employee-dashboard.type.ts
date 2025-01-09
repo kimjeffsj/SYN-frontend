@@ -12,27 +12,11 @@ export type ScheduleStatus =
   | "cancelled"
   | "completed";
 
-export interface Schedule {
-  id: number;
-  date: string;
-  shift_type: ShiftType;
-  start_time: string;
-  end_time: string;
-  status: ScheduleStatus;
-}
-
 export interface Announcement {
   id: number;
   title: string;
   date: string;
   isNew: boolean;
-}
-
-export interface DashboardStats {
-  totalHours: number;
-  completedShifts: number;
-  upcomingShifts: number;
-  leaveBalance: number;
 }
 
 export interface EmployeeDashboardState {
@@ -65,4 +49,32 @@ export interface EmployeeOverviewResponse {
 export interface EmployeeResponse {
   user: Employee;
   currentSchedule: Schedule | null;
+}
+interface DashboardStats {
+  totalHours: number;
+  completedShifts: number;
+  upcomingShifts: number;
+  leaveBalance: number;
+}
+
+interface DashboardEmployee {
+  id: number;
+  name: string;
+  position: string | null;
+  department: string | null;
+}
+
+interface Schedule {
+  id: number;
+  start_time: string;
+  end_time: string;
+  shift_type: string;
+  status: string;
+}
+
+export interface DashboardData {
+  employee: DashboardEmployee;
+  stats: DashboardStats;
+  todaySchedule: Schedule | null;
+  weeklySchedule: Schedule[];
 }
